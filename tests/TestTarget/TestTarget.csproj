@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Small, deterministic assembly the test-suite analyses and patches. Never executed directly by the server. -->
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Optimize>true</Optimize>
+    <Nullable>disable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="payload.txt" LogicalName="TestTarget.payload.txt" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,27 @@
+name: CI
+
+on:
+  push:
+    branches: [develop, main, master]
+  pull_request:
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+      - run: dotnet restore mcp-dotnet.slnx
+      - run: dotnet build mcp-dotnet.slnx -c Release --no-restore
+      - run: dotnet test mcp-dotnet.slnx -c Release --no-build --blame-hang-timeout 2m
+      - run: dotnet pack src/MCPPOC/MCPPOC.csproj -c Release --no-build -o artifacts
+      - uses: actions/upload-artifact@v4
+        if: matrix.os == 'windows-latest'
+        with:
+          name: nupkg
+          path: artifacts/*.nupkg

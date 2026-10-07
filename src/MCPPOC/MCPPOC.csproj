@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>MCPPOC</RootNamespace>
+    <AssemblyName>mcp-dotnet</AssemblyName>
+    <Description>MCP server for .NET reverse engineering: browse metadata, cross-references, IL, ILSpy decompilation, API risk scanning and IL patching.</Description>
+    <InvariantGlobalization>true</InvariantGlobalization>
+
+    <!-- Ship as a .NET tool / MCP server package: `dotnet tool install -g mcp-dotnet` or `dnx mcp-dotnet` -->
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>mcp-dotnet</ToolCommandName>
+    <PackageId>mcp-dotnet</PackageId>
+    <PackageType>McpServer</PackageType>
+    <PackageTags>mcp;modelcontextprotocol;reverse-engineering;dnlib;ilspy;decompiler</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="dnlib" />
+    <PackageReference Include="ICSharpCode.Decompiler" />
+    <PackageReference Include="ModelContextProtocol" />
+    <PackageReference Include="ModelContextProtocol.AspNetCore" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="../../README.md" Pack="true" PackagePath="/" />
+    <None Include=".mcp/server.json" Pack="true" PackagePath="/.mcp/" />
+    <InternalsVisibleTo Include="MCPPOC.Tests" />
+  </ItemGroup>
+
+</Project>
