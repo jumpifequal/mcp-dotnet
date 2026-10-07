@@ -7,7 +7,8 @@ This project is a fork of [neoz/mcp-dotnet (MCPPOC)](https://github.com/neoz/mcp
 **2.0.0 - Fork rebuilt on MCP C# SDK 2.x with new analysis, decompilation and patching tools**
 
 - add: MCP SDK 2.x support (protocol `2025-11-25`) with tool annotations, structured JSON results, prompts, resources and progress reporting.
-- add: Streamable HTTP transport via `--http` in addition to the default stdio transport.
+- add: Streamable HTTP transport via `--transport http` with bearer-token auth (`MCP_DOTNET_HTTP_TOKEN`, `--gen-token`), loopback bind by default, a Host-header allow-list and optional TLS; `--no-auth` is accepted only on a loopback bind.
+- add: bilingual documentation (English and Italian) under `docs/`, a `console.bat` manager for the HTTP server, and `publish_me` scripts that create the GitHub repo and releases.
 - add: `--read-only` mode (also `MCP_DOTNET_READONLY=1`) that hides every tool which modifies or writes assemblies.
 - add: multi-assembly workspace — load several assemblies at once and address each by id, with a selectable active assembly.
 - add: ILSpy-based `decompile`, `disassemble`, `decompile_assembly_attributes` and `export_project` (whole assembly to a compilable C# project).

@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
-# Build mcp-dotNET and register it with Claude Code, Claude Desktop and/or Codex.
-# Merges into existing config files (a timestamped .bak is made first). Requires: dotnet, and python3 or jq for JSON merging.
+# Build mcp-dotNET and register it (stdio) with Claude Code, Claude Desktop and/or Codex.
+# For the HTTP transport use install.ps1 -Transport http on Windows, or configure the client
+# manually (see docs/en/installation.md). Merges into existing config files (a timestamped .bak
+# is made first). Requires: dotnet, and python3 for JSON merging.
 #
 # Usage: scripts/install.sh [--target claude-code|claude-desktop|codex|all] [--read-only] [--name NAME] [--no-build]
 set -euo pipefail
