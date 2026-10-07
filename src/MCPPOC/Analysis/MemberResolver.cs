@@ -94,7 +94,7 @@ public static class MemberResolver
             throw new McpException($"Method token {ModelFactory.Hex(raw)} not found.");
         }
 
-        var all = asm.AllTypes.SelectMany(t => t.Methods);
+        var all = asm.AllTypes.SelectMany(t => t.Methods).ToList();
         var exact = all.FirstOrDefault(m => m.FullName == method);
         if (exact != null)
             return exact;

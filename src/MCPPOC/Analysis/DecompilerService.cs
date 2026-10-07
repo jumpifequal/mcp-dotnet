@@ -18,9 +18,13 @@ namespace MCPPOC.Analysis;
 /// Wraps ILSpy (ICSharpCode.Decompiler). When an assembly has been modified in the workspace (patched IL,
 /// renamed members) it is serialized to memory first so the decompiled output reflects the current state.
 /// </summary>
-public sealed class DecompilerService
+public sealed class DecompilerService : IDisposable
 {
-    private sealed record Cached(int Version, PEFile File, UniversalAssemblyResolver Resolver);
+    private sealed record Cached(int Version, PEFile File, UniversalAssemblyResolver Resolver) : IDisposable
+    {
+        // PEFile owns the prefetched image stream; UniversalAssemblyResolver is not IDisposable.
+        public void Dispose() => File.Dispose();
+    }
 
     private readonly ConcurrentDictionary<string, Cached> _cache = new(StringComparer.OrdinalIgnoreCase);
     private readonly ConcurrentDictionary<string, object> _locks = new(StringComparer.OrdinalIgnoreCase);
@@ -112,7 +116,18 @@ public sealed class DecompilerService
         });
     }
 
-    public void Invalidate(string assemblyId) => _cache.TryRemove(assemblyId, out _);
+    public void Invalidate(string assemblyId)
+    {
+        if (_cache.TryRemove(assemblyId, out var entry))
+            entry.Dispose();
+    }
+
+    public void Dispose()
+    {
+        foreach (var entry in _cache.Values)
+            entry.Dispose();
+        _cache.Clear();
+    }
 
     private T Run<T>(LoadedAssembly asm, Func<PEFile, UniversalAssemblyResolver, T> action)
     {
@@ -124,6 +139,9 @@ public sealed class DecompilerService
                 if (_cache.TryGetValue(a.Id, out var c) && c.Version == a.Version)
                     return c;
                 var fresh = Create(a);
+                // Serialized per assembly by 'gate', so replacing and disposing the stale entry here is safe.
+                if (_cache.TryGetValue(a.Id, out var stale))
+                    stale.Dispose();
                 _cache[a.Id] = fresh;
                 return fresh;
             });

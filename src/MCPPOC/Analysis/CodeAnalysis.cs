@@ -143,7 +143,7 @@ public static class CodeAnalysis
             hints.Add($"<Module>::.cctor contains {cctor.Body.Instructions.Count} instructions (module initializer often used by protectors for anti-tamper/decryption)");
 
         var invalidSwitch = types.SelectMany(t => t.Methods).Where(m => m.HasBody)
-            .Count(m => m.Body.Instructions.Count(i => i.OpCode.Code == Code.Switch) > 0 && m.Body.Instructions.Count(i => i.OpCode.FlowControl == FlowControl.Branch) > 15);
+            .Count(m => m.Body.Instructions.Any(i => i.OpCode.Code == Code.Switch) && m.Body.Instructions.Count(i => i.OpCode.FlowControl == FlowControl.Branch) > 15);
         if (invalidSwitch > 10)
             hints.Add($"{invalidSwitch} methods with switch-based dispatch and many unconditional branches (control-flow flattening likely)");
 
