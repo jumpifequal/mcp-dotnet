@@ -57,12 +57,18 @@ function Step($msg) { Write-Host "==> $msg" -ForegroundColor Cyan }
 if (-not (Get-Command dotnet -ErrorAction SilentlyContinue)) {
     throw 'dotnet SDK not found. Install .NET 10: winget install --id Microsoft.DotNet.SDK.Preview'
 }
-if (-not $NoBuild) {
+# A distribution package ships the published binary under .\app\ and no source tree.
+$distDll = Join-Path $repo 'app/mcp-dotnet.dll'
+$repoDll = Join-Path $repo 'src/MCPPOC/bin/Release/net10.0/mcp-dotnet.dll'
+$isDistPackage = Test-Path $distDll
+
+if (-not $NoBuild -and -not $isDistPackage) {
+    if (-not (Test-Path $project)) { throw 'No source tree and no published app found; cannot build.' }
     Step 'Building mcp-dotNET (Release)...'
     dotnet build $project -c Release | Out-Null
     if ($LASTEXITCODE -ne 0) { throw 'Build failed.' }
 }
-$dll = Join-Path $repo 'src/MCPPOC/bin/Release/net10.0/mcp-dotnet.dll'
+$dll = if ($isDistPackage) { $distDll } else { $repoDll }
 if (-not (Test-Path $dll)) { throw "Server binary not found at $dll. Run without -NoBuild first." }
 $dll = (Resolve-Path $dll).Path
 Write-Host "    binary: $dll"

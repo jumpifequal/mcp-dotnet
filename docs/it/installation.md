@@ -94,6 +94,16 @@ dotnet tool install -g mcp-dotnet --add-source ./artifacts
 
 Il comando diventa semplicemente `mcp-dotnet`, e le configurazioni possono usare `"command": "mcp-dotnet"` senza percorso del DLL.
 
+## Pacchetto pronto all'uso
+
+Per consegnare a qualcuno una build eseguibile senza SDK, crea una distribuzione:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\pack-dist.ps1
+```
+
+Crea `dist/mcp-dotnet/` (binari pubblicati + script + documentazione) e uno zip. Il destinatario lo scompatta ed esegue `install.ps1 -NoBuild`. Aggiungi `-SelfContained -Runtime win-x64` per includere il runtime .NET così da non richiedere installazioni. Vedi [Personalizzazione → Distribuzione](tweaking.md#distribuzione).
+
 ## Trasporto HTTP
 
 Per Claude Code o un server condiviso, avvia il trasporto HTTP invece di stdio:

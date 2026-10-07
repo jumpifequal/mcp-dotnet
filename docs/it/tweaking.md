@@ -99,6 +99,22 @@ mcp-dotnet [--transport stdio|http] [opzioni]
 - Codice decompilato, stringhe e risorse sono **contenuti di terze parti**. Il server li restituisce come dati, mai come istruzioni, ma evita di combinare l'analisi di un campione non fidato con strumenti ad alto impatto (email, shell, browser) nella stessa sessione, e tratta come non fidati i percorsi che un campione referenzia.
 - `save_assembly`, `get_resource(saveTo=…)` ed `export_project` scrivono nei percorsi che indichi, con i permessi del server.
 
+## Distribuzione
+
+`scripts/pack-dist.ps1` crea un pacchetto pronto all'uso in `dist/`:
+
+- `dist/mcp-dotnet/` — i binari pubblicati del server (`app/`), gli script di installazione e console, la documentazione e LICENSE/NOTICE/CHANGELOG, con un `RUNME.txt`. L'utente lo scompatta ed esegue `install.ps1 -NoBuild` (che registra il binario in `app/`) — senza compilare.
+- `dist/mcp-dotnet-<versione>.zip` — uno zip del pacchetto.
+- `dist/mcp-dotnet.<versione>.nupkg` — il pacchetto NuGet `dotnet tool` / server MCP.
+
+Dipendente dal framework per impostazione predefinita (richiede il runtime .NET 10). Per un pacchetto che non richiede nulla sul computer di destinazione:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\pack-dist.ps1 -SelfContained -Runtime win-x64
+```
+
+`dist/` è output di build ed è ignorato da git. Lo zip della release GitHub è creato separatamente da `scripts/publish_me.bat` dai sorgenti tracciati (`git archive`).
+
 ## Compilazione, test, struttura
 
 ```bash
