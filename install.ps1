@@ -87,15 +87,82 @@ function Backup($path) {
     if (Test-Path $path) { $b = "$path.bak-$(Get-Date -Format yyyyMMdd-HHmmss)"; Copy-Item $path $b; Write-Host "    backup: $b" }
 }
 
+# PowerShell's own ConvertTo-Json inserts a doubled space after every colon and an indentation that
+# compounds with key-name length instead of a fixed per-level width, which bloats and disfigures any
+# file it touches (observed: a 9.7 KB Claude Desktop config became 38 KB of jagged indentation). This
+# writes plain, standard 2-space-indented JSON instead, so merging a server entry does not visibly
+# wreck the rest of the file. Also sidesteps a PowerShell 'switch' gotcha: 'switch ($value) {...}'
+# iterates per-ELEMENT when $value is an array, silently collapsing multi-item arrays to their first
+# element -- this uses explicit if/elseif instead, which never does that.
+function Format-JsonString([string]$Value) {
+    $sb = [System.Text.StringBuilder]::new()
+    [void]$sb.Append('"')
+    foreach ($ch in $Value.ToCharArray()) {
+        if ($ch -eq '"') { [void]$sb.Append('\"') }
+        elseif ($ch -eq '\') { [void]$sb.Append('\\') }
+        elseif ($ch -eq "`n") { [void]$sb.Append('\n') }
+        elseif ($ch -eq "`r") { [void]$sb.Append('\r') }
+        elseif ($ch -eq "`t") { [void]$sb.Append('\t') }
+        elseif ([int][char]$ch -lt 0x20) { [void]$sb.Append([string]::Format('\u{0:x4}', [int][char]$ch)) }
+        else { [void]$sb.Append($ch) }
+    }
+    [void]$sb.Append('"')
+    return $sb.ToString()
+}
+
+function ConvertTo-CleanJson {
+    param($InputObject, [int]$Depth = 0)
+    $pad = '  ' * $Depth
+    $pad1 = '  ' * ($Depth + 1)
+
+    if ($null -eq $InputObject) { return 'null' }
+    if ($InputObject -is [bool]) { return $(if ($InputObject) { 'true' } else { 'false' }) }
+    if ($InputObject -is [string]) { return Format-JsonString $InputObject }
+    if ($InputObject -is [int] -or $InputObject -is [long] -or $InputObject -is [double] -or $InputObject -is [decimal]) { return "$InputObject" }
+
+    # Arrays before the object branch: a [string] is itself IEnumerable (per-char) and is already
+    # handled above; dictionaries/PSCustomObjects are excluded here and handled as objects below.
+    if ($InputObject -is [array] -or ($InputObject -is [System.Collections.IEnumerable] -and
+            $InputObject -isnot [System.Collections.IDictionary] -and $InputObject -isnot [System.Management.Automation.PSCustomObject])) {
+        $items = @($InputObject)
+        if ($items.Count -eq 0) { return '[]' }
+        $lines = foreach ($it in $items) { "$pad1" + (ConvertTo-CleanJson -InputObject $it -Depth ($Depth + 1)) }
+        return "[`n" + ($lines -join ",`n") + "`n$pad]"
+    }
+
+    if ($InputObject -is [System.Management.Automation.PSCustomObject] -or $InputObject -is [System.Collections.IDictionary]) {
+        $names = if ($InputObject -is [System.Collections.IDictionary]) { $InputObject.Keys } else { $InputObject.PSObject.Properties.Name }
+        $names = @($names)
+        # Windows PowerShell 5.1's ConvertFrom-Json represents a JSON '{}' it reads back as a single
+        # property whose NAME IS $null (not an empty string) -- that is an internal artifact, not real
+        # data, so both a truly empty property list and this one-null-named-property shape mean '{}'.
+        if ($names.Count -eq 0 -or ($names.Count -eq 1 -and $null -eq $names[0])) { return '{}' }
+        $lines = foreach ($propName in $names) {
+            $val = $InputObject.$propName
+            "$pad1" + (Format-JsonString $propName) + ': ' + (ConvertTo-CleanJson -InputObject $val -Depth ($Depth + 1))
+        }
+        return "{`n" + ($lines -join ",`n") + "`n$pad}"
+    }
+
+    return Format-JsonString "$InputObject"
+}
+
+# Windows PowerShell 5.1's 'Set-Content -Encoding UTF8' writes a UTF-8 byte-order mark, which several
+# JSON/TOML parsers (including Claude Desktop's) reject or silently ignore, making an edit look like
+# it never took effect. Write-Utf8NoBom writes the exact bytes requested, with no BOM, every time.
+function Write-Utf8NoBom([string]$Path, [string]$Content) {
+    [System.IO.File]::WriteAllText($Path, $Content, (New-Object System.Text.UTF8Encoding($false)))
+}
+
 function Merge-JsonServer($path, [object]$entry) {
     $dir = Split-Path -Parent $path
     if (-not (Test-Path $dir)) { New-Item -ItemType Directory -Force -Path $dir | Out-Null }
-    $root = if (Test-Path $path) { Get-Content $path -Raw | ConvertFrom-Json } else { [pscustomobject]@{} }
+    $root = if (Test-Path $path) { (Get-Content $path -Raw) | ConvertFrom-Json } else { [pscustomobject]@{} }
     if (-not $root.PSObject.Properties['mcpServers']) { $root | Add-Member mcpServers ([pscustomobject]@{}) }
     if ($root.mcpServers.PSObject.Properties[$Name]) { $root.mcpServers.PSObject.Properties.Remove($Name) }
     $root.mcpServers | Add-Member -NotePropertyName $Name -NotePropertyValue $entry
     Backup $path
-    $root | ConvertTo-Json -Depth 20 | Set-Content -Path $path -Encoding UTF8
+    Write-Utf8NoBom -Path $path -Content (ConvertTo-CleanJson -InputObject $root)
     Write-Host "    wrote: $path" -ForegroundColor Green
 }
 
@@ -131,7 +198,7 @@ function Configure-Codex {
     $dir = Split-Path -Parent $path
     if (-not (Test-Path $dir)) { New-Item -ItemType Directory -Force -Path $dir | Out-Null }
     if ($Transport -eq 'http') { Write-Warning 'Codex MCP is stdio; registering stdio despite -Transport http.' }
-    $argsToml = (@($dll) + $commonArgs | ForEach-Object { '"' + ($_ -replace '\\', '\\') + '"' }) -join ', '
+    $argsToml = (@($dll) + $commonArgs | ForEach-Object { '"' + ($_ -replace '\\', '\\\\') + '"' }) -join ', '
     $block = "[mcp_servers.$Name]`ncommand = `"dotnet`"`nargs = [$argsToml]`n"
     $existing = if (Test-Path $path) { Get-Content $path -Raw } else { '' }
     if ($existing -match "(?m)^\[mcp_servers\.$([regex]::Escape($Name))\]") {
@@ -139,7 +206,7 @@ function Configure-Codex {
     }
     Backup $path
     $sep = if ($existing.Length -gt 0 -and -not $existing.EndsWith("`n")) { "`n`n" } else { "`n" }
-    ($existing + $sep + $block) | Set-Content -Path $path -Encoding UTF8
+    Write-Utf8NoBom -Path $path -Content ($existing + $sep + $block)
     Write-Host "    wrote: $path" -ForegroundColor Green
 }
 

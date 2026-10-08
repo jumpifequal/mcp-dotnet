@@ -30,12 +30,20 @@ function Start-Server {
     if ($script:proc -and -not $script:proc.HasExited) { Write-Warning "Already running (PID $($script:proc.Id))."; return }
     $script:token = (& dotnet $dll --gen-token).Trim()
     $env:MCP_DOTNET_HTTP_TOKEN = $script:token
-    $args = @($dll, '--transport', 'http', '--host', '127.0.0.1', '--port', "$Port", '--log-level', 'Information')
-    if ($ReadOnly) { $args += '--read-only' }
+    $serverArgs = @($dll, '--transport', 'http', '--host', '127.0.0.1', '--port', "$Port", '--log-level', 'Information')
+    if ($ReadOnly) { $serverArgs += '--read-only' }
     if (Test-Path $script:logFile) { Remove-Item $script:logFile }
-    $script:proc = Start-Process dotnet -ArgumentList $args -PassThru -NoNewWindow -RedirectStandardError $script:logFile
+    # Runs in its own console window (no -NoNewWindow): with -NoNewWindow the server shares this
+    # console's input/output with the interactive menu below, and Kestrel's own Ctrl+C/console
+    # handling then interferes with Read-Host, so the menu stops responding to key presses (including
+    # Quit) as soon as a server is started. A separate window keeps the two fully independent.
+    $psi = [System.Diagnostics.ProcessStartInfo]::new('dotnet')
+    foreach ($a in $serverArgs) { $psi.ArgumentList.Add($a) }
+    $psi.UseShellExecute = $true
+    $psi.WindowStyle = [System.Diagnostics.ProcessWindowStyle]::Normal
+    $script:proc = [System.Diagnostics.Process]::Start($psi)
     Start-Sleep -Milliseconds 1500
-    Write-Host "[+] Started PID $($script:proc.Id)" -ForegroundColor Green
+    Write-Host "[+] Started PID $($script:proc.Id) in its own window" -ForegroundColor Green
     Write-Host "    endpoint: http://127.0.0.1:$Port/mcp"
     Write-Host "    token   : $script:token"
     Write-Host "    For Claude Code: claude mcp add dotnet --transport http http://127.0.0.1:$Port/mcp --header `"Authorization: Bearer $script:token`""
@@ -58,7 +66,7 @@ function Status {
     } else { Write-Host '[=] Not running.' }
 }
 function Tail-Log {
-    if (Test-Path $script:logFile) { Get-Content $script:logFile -Tail 30 } else { Write-Host '(no log yet)' }
+    if (Test-Path $script:logFile) { Get-Content $script:logFile -Tail 30 } else { Write-Host '(no log yet; the server window has its own console output, this log is only used with older redirect modes)' }
 }
 
 function Menu {
