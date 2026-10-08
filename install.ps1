@@ -75,6 +75,15 @@ Write-Host "    binary: $dll"
 
 if ($NoRegister) { Write-Host 'Build done (no registration requested).' -ForegroundColor Green; return }
 
+# Warn if Claude Desktop is currently running: it keeps its own in-memory copy of
+# claude_desktop_config.json and periodically overwrites the file with that copy, so an edit made to
+# the file while the app stays open can be silently undone the next time the app saves. Quitting the
+# app fully (tray icon > Quit, not just closing the window) before running this script, then
+# restarting it afterwards, avoids that.
+if (Get-Process -Name 'Claude' -ErrorAction SilentlyContinue | Where-Object { $_.Path -like '*AnthropicClaude*' }) {
+    Write-Warning "Claude Desktop is currently running. It may overwrite claude_desktop_config.json with its own in-memory copy after this script writes it, undoing the change. Fully quit Claude Desktop (tray icon > Quit), run this script, then start Claude Desktop again."
+}
+
 $commonArgs = @(); if ($ReadOnly) { $commonArgs += '--read-only' }
 $httpToken = $null
 if ($Transport -eq 'http') {
@@ -166,23 +175,51 @@ function Merge-JsonServer($path, [object]$entry) {
     Write-Host "    wrote: $path" -ForegroundColor Green
 }
 
+# Escapes a path for a TOML basic string: a single backslash becomes two (TOML basic strings use the
+# same backslash-escaping as JSON). The -replace PATTERN '\\' is a *regex* matching one literal
+# backslash; the REPLACEMENT '\\' is taken as a literal 2-character string by .NET's replacement engine
+# (which only treats '$' specially, never '\'), so this doubles every backslash exactly once. Writing
+# '\\\\' here (quadruple) would double an already-escaped path a second time, corrupting it.
+function ConvertTo-TomlString([string]$Value) {
+    '"' + ($Value -replace '\\', '\\') + '"'
+}
+
 # stdio entry: launch the DLL through the shared dotnet host.
 $stdioEntry = [pscustomobject]@{ command = 'dotnet'; args = @($dll) + $commonArgs }
 # http entry: URL + bearer header (client connects to an already-running server).
 $httpEntry = [pscustomobject]@{ type = 'http'; url = "http://127.0.0.1:$Port/mcp"; headers = [pscustomobject]@{ Authorization = "Bearer $httpToken" } }
 $entry = if ($Transport -eq 'http') { $httpEntry } else { $stdioEntry }
 
+# Finds the real headless Claude Code CLI, never the Claude Desktop GUI app. On a machine with the
+# combined "Claude" desktop app installed, a bare 'claude' on PATH commonly resolves to
+# '...\AnthropicClaude\claude.exe' -- the GUI launcher, not a CLI. Invoking THAT with 'mcp add ...'
+# does not register anything: the GUI process just sees a recognizable file-path argument (the .dll)
+# and pops its own "Open '<file>' in Claude?" attach-file confirmation dialog, while silently doing
+# nothing for MCP registration. The real CLI, where present, instead lives under a versioned
+# '...\Claude\claude-code\<version>\<hash>\claude.exe' path that is usually NOT on PATH at all.
+function Find-ClaudeCodeCli {
+    $candidates = Get-ChildItem -Path (Join-Path $env:APPDATA 'Claude/claude-code/*/*/claude.exe') -ErrorAction SilentlyContinue |
+        Sort-Object LastWriteTime -Descending
+    if ($candidates) { return $candidates[0].FullName }
+
+    $onPath = Get-Command claude -ErrorAction SilentlyContinue
+    if ($onPath -and $onPath.Source -notlike '*AnthropicClaude*') { return $onPath.Source }
+
+    return $null
+}
+
 function Configure-ClaudeCode {
     Step 'Claude Code'
-    if (Get-Command claude -ErrorAction SilentlyContinue) {
+    $cli = Find-ClaudeCodeCli
+    if ($cli) {
         if ($Transport -eq 'http') {
-            & claude mcp add $Name --transport http "http://127.0.0.1:$Port/mcp" --header "Authorization: Bearer $httpToken"
+            & $cli mcp add $Name --transport http "http://127.0.0.1:$Port/mcp" --header "Authorization: Bearer $httpToken"
         } else {
-            & claude mcp add $Name -- dotnet $dll @commonArgs
+            & $cli mcp add $Name -- dotnet $dll @commonArgs
         }
         if ($LASTEXITCODE -ne 0) { Write-Warning 'claude mcp add failed; writing .mcp.json instead.'; Merge-JsonServer (Join-Path $repo '.mcp.json') $entry }
     } else {
-        Write-Warning "'claude' CLI not found; writing project-scoped .mcp.json in the repo."
+        Write-Warning "Claude Code CLI not found (only the Claude Desktop app binary is on PATH, which cannot register MCP servers via the command line); writing project-scoped .mcp.json in the repo."
         Merge-JsonServer (Join-Path $repo '.mcp.json') $entry
     }
 }
@@ -198,7 +235,7 @@ function Configure-Codex {
     $dir = Split-Path -Parent $path
     if (-not (Test-Path $dir)) { New-Item -ItemType Directory -Force -Path $dir | Out-Null }
     if ($Transport -eq 'http') { Write-Warning 'Codex MCP is stdio; registering stdio despite -Transport http.' }
-    $argsToml = (@($dll) + $commonArgs | ForEach-Object { '"' + ($_ -replace '\\', '\\\\') + '"' }) -join ', '
+    $argsToml = (@($dll) + $commonArgs | ForEach-Object { ConvertTo-TomlString $_ }) -join ', '
     $block = "[mcp_servers.$Name]`ncommand = `"dotnet`"`nargs = [$argsToml]`n"
     $existing = if (Test-Path $path) { Get-Content $path -Raw } else { '' }
     if ($existing -match "(?m)^\[mcp_servers\.$([regex]::Escape($Name))\]") {
