@@ -57,7 +57,7 @@ You need [.NET 10 SDK](https://dotnet.microsoft.com/download). Then:
 ```powershell
 git clone https://github.com/jumpifequal/mcp-dotnet C:\Tools\mcp-dotnet
 cd C:\Tools\mcp-dotnet
-powershell -ExecutionPolicy Bypass -File .\install.ps1        # build + register all clients (stdio)
+powershell -ExecutionPolicy Bypass -File .\Scripts\install.ps1        # build + register all clients (stdio)
 ```
 
 Restart your client and ask: *"load C:\path\to\App.dll and summarise what it does from the entry points."* The [installation manual](docs/en/installation.md) covers the install script, manual configuration, the HTTP transport and how to check that everything works.

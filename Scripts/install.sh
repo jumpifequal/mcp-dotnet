@@ -4,7 +4,7 @@
 # manually (see docs/en/installation.md). Merges into existing config files (a timestamped .bak
 # is made first). Requires: dotnet, and python3 for JSON merging.
 #
-# Usage: scripts/install.sh [--target claude-code|claude-desktop|codex|all] [--read-only] [--name NAME] [--no-build]
+# Usage: Scripts/install.sh [--target claude-code|claude-desktop|codex|all] [--read-only] [--name NAME] [--no-build]
 set -euo pipefail
 
 target=all; readonly_flag=0; name=dotnet; nobuild=0
@@ -29,7 +29,7 @@ if [ "$nobuild" = 0 ]; then
   step "Building mcp-dotNET (Release)..."
   dotnet build "$project" -c Release >/dev/null
 fi
-dll="$repo/src/MCPPOC/bin/Release/net10.0/mcp-dotnet.dll"
+dll="$repo/bin/MCPPOC/Release/net10.0/mcp-dotnet.dll"
 [ -f "$dll" ] || { echo "Server binary not found at $dll" >&2; exit 1; }
 echo "    binary: $dll"
 

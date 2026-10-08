@@ -67,8 +67,8 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
 
         BuildCommand = new AsyncRelayCommand(() => RunToolAsync("dotnet", $"build \"{Path.Combine(_repoRoot, "mcp-dotnet.slnx")}\" -c Release", "build"));
         TestCommand = new AsyncRelayCommand(() => RunToolAsync("dotnet", $"test \"{Path.Combine(_repoRoot, "mcp-dotnet.slnx")}\" -c Release --no-build", "test"));
-        PackDistCommand = new AsyncRelayCommand(() => RunToolAsync("powershell.exe", $"-NoProfile -ExecutionPolicy Bypass -File \"{Path.Combine(_repoRoot, "scripts", "pack-dist.ps1")}\"", "pack-dist"));
-        PackNuGetCommand = new AsyncRelayCommand(() => RunToolAsync("dotnet", $"pack \"{Path.Combine(_repoRoot, "src", "MCPPOC", "MCPPOC.csproj")}\" -c Release -o \"{Path.Combine(_repoRoot, "dist")}\"", "pack"));
+        PackDistCommand = new AsyncRelayCommand(() => RunToolAsync("powershell.exe", $"-NoProfile -ExecutionPolicy Bypass -File \"{Path.Combine(_repoRoot, "Scripts", "pack-dist.ps1")}\"", "pack-dist"));
+        PackNuGetCommand = new AsyncRelayCommand(() => RunToolAsync("dotnet", $"pack \"{Path.Combine(_repoRoot, "src", "MCPPOC", "MCPPOC.csproj")}\" -c Release -o \"{Path.Combine(_repoRoot, "Distribution")}\"", "pack"));
 
         RegisterClaudeCodeCommand = new AsyncRelayCommand(() => RegisterAsync("claude-code"));
         RegisterClaudeDesktopCommand = new AsyncRelayCommand(() => RegisterAsync("claude-desktop"));

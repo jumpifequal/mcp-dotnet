@@ -48,7 +48,7 @@ param(
     [switch]$NoRegister
 )
 $ErrorActionPreference = 'Stop'
-$repo = $PSScriptRoot
+$repo = Split-Path -Parent $PSScriptRoot
 $project = Join-Path $repo 'src/MCPPOC/MCPPOC.csproj'
 
 function Step($msg) { Write-Host "==> $msg" -ForegroundColor Cyan }
@@ -59,7 +59,7 @@ if (-not (Get-Command dotnet -ErrorAction SilentlyContinue)) {
 }
 # A distribution package ships the published binary under .\app\ and no source tree.
 $distDll = Join-Path $repo 'app/mcp-dotnet.dll'
-$repoDll = Join-Path $repo 'src/MCPPOC/bin/Release/net10.0/mcp-dotnet.dll'
+$repoDll = Join-Path $repo 'bin/MCPPOC/Release/net10.0/mcp-dotnet.dll'
 $isDistPackage = Test-Path $distDll
 
 if (-not $NoBuild -and -not $isDistPackage) {

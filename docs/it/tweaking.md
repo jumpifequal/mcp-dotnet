@@ -89,9 +89,9 @@ mcp-dotnet [--transport stdio|http] [opzioni]
 
 ## Console
 
-`console.bat` apre una GUI nativa WPF (la compila al primo avvio se serve): un'intestazione con il selettore di **profilo** del server (Nuovo/Elimina) e **Avvia server / Ferma / Riavvia**, una scheda **Overview** con un pannello server (stato, endpoint, PID, uptime, richieste/avvisi/errori, ultimo self-test, percorso del binario, pulsanti Self-test e Copia endpoint) accanto a un pannello **Workspace** live che elenca gli assembly caricati da qualunque client collegato a quel server, **Settings** (host/porta/percorso/livello di log/read-only per profilo), **Transport** (token bearer, `--no-auth`, certificato/chiave TLS), **Maintenance** (Build, Esegui test, crea il pacchetto `dist/`, impacchetta lo strumento NuGet) e **Integration** (registra/riverifica Claude Code, Claude Desktop e Codex, con un avviso se Claude Desktop è in esecuzione — vedi [Limite noto](#limite-noto-claude-desktop-sovrascrive-la-propria-configurazione)). Sotto, un log filtrabile e ricercabile (error/warning/status/request/debug, autoscroll, wrap, save/clear) e un pannello **Problems** (errori + avvisi, copia/pulisci), con una barra di stato che mostra il job in corso e i totali.
+`console.bat` apre una GUI nativa WPF (la compila al primo avvio se serve): un'intestazione con il selettore di **profilo** del server (Nuovo/Elimina) e **Avvia server / Ferma / Riavvia**, una scheda **Overview** con un pannello server (stato, endpoint, PID, uptime, richieste/avvisi/errori, ultimo self-test, percorso del binario, pulsanti Self-test e Copia endpoint) accanto a un pannello **Workspace** live che elenca gli assembly caricati da qualunque client collegato a quel server, **Settings** (host/porta/percorso/livello di log/read-only per profilo), **Transport** (token bearer, `--no-auth`, certificato/chiave TLS), **Maintenance** (Build, Esegui test, crea il pacchetto `Distribution/`, impacchetta lo strumento NuGet) e **Integration** (registra/riverifica Claude Code, Claude Desktop e Codex, con un avviso se Claude Desktop è in esecuzione — vedi [Limite noto](#limite-noto-claude-desktop-sovrascrive-la-propria-configurazione)). Sotto, un log filtrabile e ricercabile (error/warning/status/request/debug, autoscroll, wrap, save/clear) e un pannello **Problems** (errori + avvisi, copia/pulisci), con una barra di stato che mostra il job in corso e i totali.
 
-Gestisce solo il **trasporto HTTP** (c'è qualcosa da avviare, fermare e osservare); per stdio non c'è nulla da sorvegliare, perché è il client a lanciare quel server. Se il Windows Desktop Runtime non è disponibile, `console.bat` ripiega automaticamente su `scripts/console.ps1`, una console testuale senza dipendenze con le stesse azioni principali (build, avvio/arresto, stato/controllo di salute, coda del log, generazione di un token, esecuzione dei test) — anche la scelta giusta per una sessione non interattiva o scriptata.
+Gestisce solo il **trasporto HTTP** (c'è qualcosa da avviare, fermare e osservare); per stdio non c'è nulla da sorvegliare, perché è il client a lanciare quel server. Se il Windows Desktop Runtime non è disponibile, `console.bat` ripiega automaticamente su `console.ps1` (stessa cartella), una console testuale senza dipendenze con le stesse azioni principali (build, avvio/arresto, stato/controllo di salute, coda del log, generazione di un token, esecuzione dei test) — anche la scelta giusta per una sessione non interattiva o scriptata.
 
 ### Limite noto: Claude Desktop sovrascrive la propria configurazione
 
@@ -108,19 +108,19 @@ Claude Desktop mantiene una copia in memoria di `claude_desktop_config.json` men
 
 ## Distribuzione
 
-`scripts/pack-dist.ps1` crea un pacchetto pronto all'uso in `dist/`:
+`Scripts/pack-dist.ps1` crea un pacchetto pronto all'uso in `Distribution/`:
 
-- `dist/mcp-dotnet/` — i binari pubblicati del server (`app/`), gli script di installazione e console, la documentazione e LICENSE/NOTICE/CHANGELOG, con un `RUNME.txt`. L'utente lo scompatta ed esegue `install.ps1 -NoBuild` (che registra il binario in `app/`) — senza compilare.
-- `dist/mcp-dotnet-<versione>.zip` — uno zip del pacchetto.
-- `dist/mcp-dotnet.<versione>.nupkg` — il pacchetto NuGet `dotnet tool` / server MCP.
+- `Distribution/mcp-dotnet/` — i binari pubblicati del server (`app/`), `Scripts/` (install/setup/console), la documentazione e LICENSE/NOTICE/CHANGELOG, con un `RUNME.txt`. L'utente lo scompatta ed esegue `Scripts/install.ps1 -NoBuild` (che registra il binario in `app/`) — senza compilare.
+- `Distribution/mcp-dotnet-<versione>.zip` — uno zip del pacchetto.
+- `Distribution/mcp-dotnet.<versione>.nupkg` — il pacchetto NuGet `dotnet tool` / server MCP.
 
 Dipendente dal framework per impostazione predefinita (richiede il runtime .NET 10). Per un pacchetto che non richiede nulla sul computer di destinazione:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\pack-dist.ps1 -SelfContained -Runtime win-x64
+powershell -ExecutionPolicy Bypass -File .\Scripts\pack-dist.ps1 -SelfContained -Runtime win-x64
 ```
 
-`dist/` è output di build ed è ignorato da git. Lo zip della release GitHub è creato separatamente da `scripts/publish_me.bat` dai sorgenti tracciati (`git archive`).
+`Distribution/` è output di build ed è ignorato da git. Lo zip della release GitHub è creato separatamente da `Scripts/publish_me.bat` dai sorgenti tracciati (`git archive`).
 
 ## Compilazione, test, struttura
 
@@ -135,10 +135,13 @@ src/MCPPOC/            server (mcp-dotnet)
   Analysis/            parser/patcher IL, servizio ILSpy, scanner API, CFG, risorse
   Tools/               strumenti MCP, raggruppati per area
   Server/              setup DI, trasporti, prompt, risorse
+Console/               console GUI WPF (mcp-dotnet-console, solo Windows; vedi mcp-dotnet.windows.slnx)
 tests/MCPPOC.Tests/    test unitari, patch end-to-end e protocollo MCP
 tests/TestTarget/      assembly deterministico analizzato e patchato dai test
 tests/fixtures/        binari di terze parti usati come input dei test
-scripts/               install.sh, console.ps1, helper di pubblicazione
+Scripts/               install.ps1, setup.bat, console.bat/.ps1, install.sh, pack-dist.ps1, helper di pubblicazione
+bin/, obj/             output di compilazione centralizzato (ignorato da git; vedi Directory.Build.props)
+Distribution/          output di Scripts/pack-dist.ps1 (ignorato da git)
 ```
 
 ## Modifiche incompatibili rispetto all'originale 1.x

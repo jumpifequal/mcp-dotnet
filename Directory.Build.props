@@ -1,4 +1,13 @@
 <Project>
+  <!-- Centralized compile-time output, applied to every project before the SDK sets its defaults:
+       final (Release/Debug) binaries land in bin\<ProjectName>\<Config>\<TFM>\, intermediate/
+       compile-time files in obj\<ProjectName>\, both at the repository root, rather than one
+       bin/obj pair scattered per project under src/ and tests/. -->
+  <PropertyGroup>
+    <BaseOutputPath>$(MSBuildThisFileDirectory)bin\$(MSBuildProjectName)\</BaseOutputPath>
+    <BaseIntermediateOutputPath>$(MSBuildThisFileDirectory)obj\$(MSBuildProjectName)\</BaseIntermediateOutputPath>
+  </PropertyGroup>
+
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <LangVersion>latest</LangVersion>

@@ -11,7 +11,7 @@ public sealed class InstallerRunner(string repoRoot)
 
     public async Task<int> RegisterAsync(string target, bool readOnly, CancellationToken ct = default)
     {
-        var script = Path.Combine(repoRoot, "install.ps1");
+        var script = Path.Combine(repoRoot, "Scripts", "install.ps1");
         var psi = new ProcessStartInfo("powershell.exe")
         {
             UseShellExecute = false,

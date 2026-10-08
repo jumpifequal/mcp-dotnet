@@ -95,7 +95,7 @@ server panel (state, endpoint, PID, uptime, requests/warnings/errors, last self-
 Self-test and Copy endpoint buttons) next to a live **Workspace** panel listing the assemblies loaded
 by any client currently connected to that server, **Settings** (host/port/path/log level/read-only per
 profile), **Transport** (bearer token, `--no-auth`, TLS cert/key), **Maintenance** (Build, Run tests,
-build the `dist/` package, pack the NuGet tool), and **Integration** (register/recheck Claude Code,
+build the `Distribution/` package, pack the NuGet tool), and **Integration** (register/recheck Claude Code,
 Claude Desktop and Codex, with a warning if Claude Desktop is currently running — see
 [Known limitation](#known-limitation-claude-desktop-overwrites-its-own-config)). Below that, a
 filterable, searchable log (error/warning/status/request/debug, autoscroll, wrap, save/clear) and a
@@ -104,7 +104,7 @@ totals.
 
 It manages only the **HTTP transport** (there is something to start, stop and watch); for stdio there
 is nothing to supervise, since the client launches that server itself. If the Windows Desktop Runtime
-isn't available, `console.bat` falls back automatically to `scripts/console.ps1`, a dependency-free
+isn't available, `console.bat` falls back automatically to `console.ps1` (same folder), a dependency-free
 text console with the same core actions (build, start/stop, status/health check, tail the log, generate
 a token, run the tests) — also the right choice for a non-interactive or scripted session.
 
@@ -126,19 +126,19 @@ Desktop is running at the time of registration. For a guaranteed update: fully q
 
 ## Distribution
 
-`scripts/pack-dist.ps1` builds a ready-to-run package under `dist/`:
+`Scripts/pack-dist.ps1` builds a ready-to-run package under `Distribution/`:
 
-- `dist/mcp-dotnet/` — the published server binaries (`app/`), the install and console scripts, the docs, and LICENSE/NOTICE/CHANGELOG, with a `RUNME.txt`. A user unzips it and runs `install.ps1 -NoBuild` (which registers the `app/` binary) — no build needed.
-- `dist/mcp-dotnet-<version>.zip` — a zip of that package.
-- `dist/mcp-dotnet.<version>.nupkg` — the NuGet `dotnet tool` / MCP-server package.
+- `Distribution/mcp-dotnet/` — the published server binaries (`app/`), `Scripts/` (install/setup/console), the docs, and LICENSE/NOTICE/CHANGELOG, with a `RUNME.txt`. A user unzips it and runs `Scripts/install.ps1 -NoBuild` (which registers the `app/` binary) — no build needed.
+- `Distribution/mcp-dotnet-<version>.zip` — a zip of that package.
+- `Distribution/mcp-dotnet.<version>.nupkg` — the NuGet `dotnet tool` / MCP-server package.
 
 Framework-dependent by default (needs the .NET 10 runtime). For a package that needs nothing installed on the target:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\pack-dist.ps1 -SelfContained -Runtime win-x64
+powershell -ExecutionPolicy Bypass -File .\Scripts\pack-dist.ps1 -SelfContained -Runtime win-x64
 ```
 
-`dist/` is build output and is git-ignored. The GitHub release zip is built separately by `scripts/publish_me.bat` from the tracked source (`git archive`).
+`Distribution/` is build output and is git-ignored. The GitHub release zip is built separately by `Scripts/publish_me.bat` from the tracked source (`git archive`).
 
 ## Build, test, layout
 
@@ -153,10 +153,13 @@ src/MCPPOC/            server (mcp-dotnet)
   Analysis/            IL parser, patcher, ILSpy service, API scanner, CFG, resources
   Tools/               MCP tools, grouped by area
   Server/              DI setup, transports, prompts, resources
+Console/               WPF GUI console (mcp-dotnet-console, Windows-only; see mcp-dotnet.windows.slnx)
 tests/MCPPOC.Tests/    unit, end-to-end patch and MCP protocol tests
 tests/TestTarget/      deterministic assembly the tests analyse and patch
 tests/fixtures/        third-party binaries used as test inputs
-scripts/               install.sh, console.ps1, publish helpers
+Scripts/               install.ps1, setup.bat, console.bat/.ps1, install.sh, pack-dist.ps1, publish helpers
+bin/, obj/             centralized compile-time output (git-ignored; see Directory.Build.props)
+Distribution/          output of Scripts/pack-dist.ps1 (git-ignored)
 ```
 
 ## Breaking changes from the 1.x original

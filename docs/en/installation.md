@@ -18,14 +18,14 @@ The script builds the server in Release and writes/merges the configuration for 
 # Windows
 git clone https://github.com/jumpifequal/mcp-dotnet C:\Tools\mcp-dotnet
 cd C:\Tools\mcp-dotnet
-powershell -ExecutionPolicy Bypass -File .\install.ps1
+powershell -ExecutionPolicy Bypass -File .\Scripts\install.ps1
 ```
 
 ```bash
 # Linux / macOS (needs python3 for JSON merging)
 git clone https://github.com/jumpifequal/mcp-dotnet ~/mcp-dotnet
 cd ~/mcp-dotnet
-./scripts/install.sh
+./Scripts/install.sh
 ```
 
 Useful options (PowerShell):
@@ -38,7 +38,7 @@ Useful options (PowerShell):
 | `-NoBuild` | skip the build, use an existing Release binary |
 | `-NoRegister` | build only, touch no configuration |
 
-`setup.bat` runs the same thing with a double-click.
+`Scripts\setup.bat` runs the same thing with a double-click.
 
 ## Option B — manual configuration
 
@@ -48,7 +48,7 @@ Build once:
 dotnet build -c Release
 ```
 
-The server DLL is at `src/MCPPOC/bin/Release/net10.0/mcp-dotnet.dll`. Launch it through the shared `dotnet` host.
+The server DLL is at `bin/MCPPOC/Release/net10.0/mcp-dotnet.dll`. Launch it through the shared `dotnet` host.
 
 ### Connect your AI client
 
@@ -70,7 +70,7 @@ Drop `--read-only` to enable patching. Fully restart Claude Desktop afterwards.
 **Claude Code**
 
 ```bash
-claude mcp add dotnet -- dotnet /path/to/src/MCPPOC/bin/Release/net10.0/mcp-dotnet.dll
+claude mcp add dotnet -- dotnet /path/to/bin/MCPPOC/Release/net10.0/mcp-dotnet.dll
 ```
 
 **Codex** — add to `~/.codex/config.toml`:
@@ -78,7 +78,7 @@ claude mcp add dotnet -- dotnet /path/to/src/MCPPOC/bin/Release/net10.0/mcp-dotn
 ```toml
 [mcp_servers.dotnet]
 command = "dotnet"
-args = ["/path/to/src/MCPPOC/bin/Release/net10.0/mcp-dotnet.dll"]
+args = ["/path/to/bin/MCPPOC/Release/net10.0/mcp-dotnet.dll"]
 ```
 
 ### OpenAI clients
@@ -99,10 +99,10 @@ Then the command is simply `mcp-dotnet`, and client configs can use `"command": 
 To hand someone a build they can run without the SDK, create a distribution:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\pack-dist.ps1
+powershell -ExecutionPolicy Bypass -File .\Scripts\pack-dist.ps1
 ```
 
-This writes `dist/mcp-dotnet/` (published binaries + scripts + docs) and a zip. The recipient unzips it and runs `install.ps1 -NoBuild`. Add `-SelfContained -Runtime win-x64` to bundle the .NET runtime so nothing need be installed. See [Tweaking → Distribution](tweaking.md#distribution).
+This writes `Distribution/mcp-dotnet/` (published binaries + Scripts\ + docs) and a zip. The recipient unzips it and runs `Scripts\install.ps1 -NoBuild`. Add `-SelfContained -Runtime win-x64` to bundle the .NET runtime so nothing need be installed. See [Tweaking → Distribution](tweaking.md#distribution).
 
 ## HTTP transport
 
@@ -110,7 +110,7 @@ For Claude Code or a shared server, run the HTTP transport instead of stdio:
 
 ```bash
 # generate a token once
-dotnet src/MCPPOC/bin/Release/net10.0/mcp-dotnet.dll --gen-token
+dotnet bin/MCPPOC/Release/net10.0/mcp-dotnet.dll --gen-token
 # start the server (loopback, bearer auth)
 set MCP_DOTNET_HTTP_TOKEN=<token>        # export on Linux/macOS
 dotnet .../mcp-dotnet.dll --transport http --port 5005
@@ -122,7 +122,7 @@ Register it with Claude Code:
 claude mcp add dotnet --transport http http://127.0.0.1:5005/mcp --header "Authorization: Bearer <token>"
 ```
 
-Or let the installer and console do it: `install.ps1 -Transport http -Target claude-code`, then `console.bat` to start and watch the server. Details and TLS in [Tweaking → Transports](tweaking.md#transports-stdio-and-http).
+Or let the installer and console do it: `Scripts\install.ps1 -Transport http -Target claude-code`, then `Scripts\console.bat` to start and watch the server. Details and TLS in [Tweaking → Transports](tweaking.md#transports-stdio-and-http).
 
 ## Check it works
 

@@ -14,7 +14,7 @@ $repo = Split-Path -Parent $PSScriptRoot
 $project = Join-Path $repo 'src/MCPPOC/MCPPOC.csproj'
 # Repo layout uses src/.../bin; a distribution package ships the binary under .\app\.
 $distDll = Join-Path $repo 'app/mcp-dotnet.dll'
-$dll = if (Test-Path $distDll) { $distDll } else { Join-Path $repo 'src/MCPPOC/bin/Release/net10.0/mcp-dotnet.dll' }
+$dll = if (Test-Path $distDll) { $distDll } else { Join-Path $repo 'bin/MCPPOC/Release/net10.0/mcp-dotnet.dll' }
 $script:proc = $null
 $script:token = $null
 $script:logFile = Join-Path $env:TEMP "mcp-dotnet-console.log"

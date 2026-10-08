@@ -35,7 +35,7 @@ public sealed partial class ServerProcessManager : IDisposable
     {
         var dist = Path.Combine(repoRoot, "app", "mcp-dotnet.dll");
         if (File.Exists(dist)) return dist;
-        var built = Path.Combine(repoRoot, "src", "MCPPOC", "bin", "Release", "net10.0", "mcp-dotnet.dll");
+        var built = Path.Combine(repoRoot, "bin", "MCPPOC", "Release", "net10.0", "mcp-dotnet.dll");
         return File.Exists(built) ? built : null;
     }
 

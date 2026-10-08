@@ -1,7 +1,9 @@
 <Solution>
   <Folder Name="/src/">
     <Project Path="src/MCPPOC/MCPPOC.csproj" />
-    <Project Path="src/MCPPOC.Console/MCPPOC.Console.csproj" />
+  </Folder>
+  <Folder Name="/Console/">
+    <Project Path="Console/MCPPOC.Console.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/MCPPOC.Tests/MCPPOC.Tests.csproj" />

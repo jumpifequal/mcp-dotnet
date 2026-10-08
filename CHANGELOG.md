@@ -10,7 +10,7 @@ This project is a fork of [neoz/mcp-dotnet (MCPPOC)](https://github.com/neoz/mcp
 - add: Streamable HTTP transport via `--transport http` with bearer-token auth (`MCP_DOTNET_HTTP_TOKEN`, `--gen-token`), loopback bind by default, a Host-header allow-list and optional TLS; `--no-auth` is accepted only on a loopback bind.
 - add: bilingual documentation (English and Italian) under `docs/`, a `console.bat` manager for the HTTP server, and `publish_me` scripts that create the GitHub repo and releases.
 - add: `console.bat` opens a native WPF GUI console — profiles, Start/Stop/Restart, live workspace view, a filterable/searchable log and Problems panel, Maintenance (build/test/pack) and Integration (register/recheck Claude Code, Claude Desktop, Codex); falls back to the text console when the Windows Desktop Runtime isn't available.
-- add: `scripts/pack-dist.ps1` builds a ready-to-run `dist/` package (published binaries, scripts and docs, plus a zip and the NuGet package), optionally self-contained; the bundled installer registers it with no rebuild.
+- add: `Scripts/pack-dist.ps1` builds a ready-to-run `Distribution/` package (published binaries, Scripts and docs, plus a zip and the NuGet package), optionally self-contained; the bundled installer registers it with no rebuild.
 - add: `--read-only` mode (also `MCP_DOTNET_READONLY=1`) that hides every tool which modifies or writes assemblies.
 - add: multi-assembly workspace — load several assemblies at once and address each by id, with a selectable active assembly.
 - add: ILSpy-based `decompile`, `disassemble`, `decompile_assembly_attributes` and `export_project` (whole assembly to a compilable C# project).

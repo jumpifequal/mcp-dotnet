@@ -57,7 +57,7 @@ Serve il [SDK .NET 10](https://dotnet.microsoft.com/download). Poi:
 ```powershell
 git clone https://github.com/jumpifequal/mcp-dotnet C:\Tools\mcp-dotnet
 cd C:\Tools\mcp-dotnet
-powershell -ExecutionPolicy Bypass -File .\install.ps1        # build + registra tutti i client (stdio)
+powershell -ExecutionPolicy Bypass -File .\Scripts\install.ps1        # build + registra tutti i client (stdio)
 ```
 
 Riavvia il client e chiedi: *"carica C:\percorso\App.dll e riassumi cosa fa a partire dai punti d'ingresso."* Il [manuale di installazione](docs/it/installation.md) copre lo script, la configurazione manuale, il trasporto HTTP e come verificare che tutto funzioni.

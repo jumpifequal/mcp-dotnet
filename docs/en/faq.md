@@ -4,7 +4,7 @@
 
 ### The client doesn't see the server / no tools appear
 
-- Confirm the build exists: `src/MCPPOC/bin/Release/net10.0/mcp-dotnet.dll`.
+- Confirm the build exists: `bin/MCPPOC/Release/net10.0/mcp-dotnet.dll`.
 - Check the command runs: `dotnet .../mcp-dotnet.dll --help` should print usage.
 - Fully restart the client (Claude Desktop must be quit from the tray, not just closed).
 - Check the config path and that `command`/`args` are correct. Logs go to stderr; raise them with `--log-level Information`.

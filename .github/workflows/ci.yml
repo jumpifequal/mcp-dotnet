@@ -29,4 +29,4 @@ jobs:
       # Deliberately not part of mcp-dotnet.slnx so the cross-platform restore/build/test above never
       # touches it; mcp-dotnet.windows.slnx is the Windows-only solution that includes it for IDE use.
       - if: matrix.os == 'windows-latest'
-        run: dotnet build src/MCPPOC.Console/MCPPOC.Console.csproj -c Release
+        run: dotnet build Console/MCPPOC.Console.csproj -c Release
