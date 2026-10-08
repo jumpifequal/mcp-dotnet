@@ -89,7 +89,32 @@ mcp-dotnet [--transport stdio|http] [options]
 
 ## Console
 
-`console.bat` (Windows) opens a small text manager that: builds the server, starts/stops the HTTP transport with a fresh token, prints the endpoint and the exact `claude mcp add` line, runs a health check (a real `initialize` round-trip), tails the log, generates a token and runs the tests. It is handy when you expose the server over HTTP; for stdio there is nothing to start, since the client launches the server.
+`console.bat` opens a native WPF GUI (building it on first run if needed): a header with a server
+**profile** selector (New/Delete) and **Start server / Stop / Restart**, an **Overview** tab with a
+server panel (state, endpoint, PID, uptime, requests/warnings/errors, last self-test, binary path,
+Self-test and Copy endpoint buttons) next to a live **Workspace** panel listing the assemblies loaded
+by any client currently connected to that server, **Settings** (host/port/path/log level/read-only per
+profile), **Transport** (bearer token, `--no-auth`, TLS cert/key), **Maintenance** (Build, Run tests,
+build the `dist/` package, pack the NuGet tool), and **Integration** (register/recheck Claude Code,
+Claude Desktop and Codex, with a warning if Claude Desktop is currently running — see
+[Known limitation](#known-limitation-claude-desktop-overwrites-its-own-config)). Below that, a
+filterable, searchable log (error/warning/status/request/debug, autoscroll, wrap, save/clear) and a
+**Problems** panel (errors + warnings, copy/clear), with a status bar showing the running job and
+totals.
+
+It manages only the **HTTP transport** (there is something to start, stop and watch); for stdio there
+is nothing to supervise, since the client launches that server itself. If the Windows Desktop Runtime
+isn't available, `console.bat` falls back automatically to `scripts/console.ps1`, a dependency-free
+text console with the same core actions (build, start/stop, status/health check, tail the log, generate
+a token, run the tests) — also the right choice for a non-interactive or scripted session.
+
+### Known limitation: Claude Desktop overwrites its own config
+
+Claude Desktop keeps an in-memory copy of `claude_desktop_config.json` while it runs and can overwrite
+the file on disk with that copy (e.g. when it saves other preferences), silently undoing an edit made
+by `install.ps1` or the console's Integration tab while the app stayed open. Both now warn when Claude
+Desktop is running at the time of registration. For a guaranteed update: fully quit Claude Desktop
+(tray icon > Quit, not just closing the window), register, then start it again.
 
 ## Security notes
 

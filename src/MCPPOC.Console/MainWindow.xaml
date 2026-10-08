@@ -1,0 +1,298 @@
+<Window x:Class="MCPPOC.Console.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:conv="clr-namespace:MCPPOC.Console.Converters"
+        xmlns:svc="clr-namespace:MCPPOC.Console.Services"
+        Style="{StaticResource BaseWindow}"
+        Title="mcp-dotNET console" Height="760" Width="1180" MinHeight="560" MinWidth="860"
+        WindowStartupLocation="CenterScreen">
+    <Window.Resources>
+        <conv:StateToBrushConverter x:Key="StateToBrush"/>
+        <conv:LevelToBrushConverter x:Key="LevelToBrush"/>
+        <conv:BoolToVisibilityConverter x:Key="BoolToVis"/>
+        <conv:InverseBoolConverter x:Key="InverseBool"/>
+        <conv:NullToBoolConverter x:Key="NullToBool"/>
+        <conv:BoolToWrapConverter x:Key="BoolToWrap"/>
+
+        <DataTemplate x:Key="LogRowTemplate">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="70"/>
+                    <ColumnDefinition Width="90"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="{Binding TimeText}" Style="{StaticResource LabelText}" FontFamily="Consolas"/>
+                <TextBlock Grid.Column="1" Text="{Binding Source}" Foreground="{Binding Level, Converter={StaticResource LevelToBrush}}" FontFamily="Consolas"/>
+                <TextBlock Grid.Column="2" Text="{Binding Message}" TextWrapping="{Binding DataContext.WrapLog, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BoolToWrap}}"
+                           Foreground="{Binding Level, Converter={StaticResource LevelToBrush}}" FontFamily="Consolas" FontSize="11.5"/>
+            </Grid>
+        </DataTemplate>
+    </Window.Resources>
+
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="2*"/>
+            <RowDefinition Height="6"/>
+            <RowDefinition Height="1.1*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Grid Grid.Row="0" Margin="0,0,0,8">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock Text="mcp-dotNET" FontSize="18" FontWeight="Bold"/>
+                <TextBlock Text="console" Style="{StaticResource LabelText}" Margin="8,4,0,0" VerticalAlignment="Bottom"/>
+            </StackPanel>
+            <Border Grid.Column="1" Style="{StaticResource Badge}" Background="{Binding State, Converter={StaticResource StateToBrush}}" Margin="14,0,0,0" VerticalAlignment="Center">
+                <TextBlock Text="{Binding StateText}" FontWeight="Bold" FontSize="10.5"/>
+            </Border>
+
+            <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock Text="Profile" Style="{StaticResource LabelText}" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                <ComboBox Width="150" ItemsSource="{Binding Profiles}" SelectedItem="{Binding SelectedProfile}" DisplayMemberPath="Name"/>
+                <Button Content="New" Command="{Binding NewProfileCommand}" Margin="6,0,0,0"/>
+                <Button Content="Delete" Command="{Binding DeleteProfileCommand}" Margin="6,0,0,0"/>
+                <Button Content="Start server" Style="{StaticResource PrimaryButton}" Command="{Binding StartCommand}" Margin="16,0,0,0"/>
+                <Button Content="Stop" Style="{StaticResource DangerButton}" Command="{Binding StopCommand}" Margin="6,0,0,0"/>
+                <Button Content="Restart" Command="{Binding RestartCommand}" Margin="6,0,0,0"/>
+            </StackPanel>
+        </Grid>
+
+        <!-- Tabs -->
+        <TabControl Grid.Row="1" Grid.RowSpan="3">
+            <TabItem Header="Overview">
+                <Grid Margin="0,8,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="320"/>
+                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0" Style="{StaticResource Panel}">
+                        <StackPanel>
+                            <TextBlock Text="SERVER" Style="{StaticResource HeaderText}" Margin="0,0,0,8"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="110"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/>
+                                    <RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/>
+                                </Grid.RowDefinitions>
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="State" Style="{StaticResource LabelText}"/>
+                                <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding StateText}"/>
+                                <TextBlock Grid.Row="1" Grid.Column="0" Text="Transport" Style="{StaticResource LabelText}"/>
+                                <TextBlock Grid.Row="1" Grid.Column="1" Text="HTTP"/>
+                                <TextBlock Grid.Row="2" Grid.Column="0" Text="Endpoint" Style="{StaticResource LabelText}"/>
+                                <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding Endpoint}" TextWrapping="Wrap"/>
+                                <TextBlock Grid.Row="3" Grid.Column="0" Text="PID" Style="{StaticResource LabelText}"/>
+                                <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding Pid}"/>
+                                <TextBlock Grid.Row="4" Grid.Column="0" Text="Uptime" Style="{StaticResource LabelText}"/>
+                                <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding Uptime}"/>
+                                <TextBlock Grid.Row="5" Grid.Column="0" Text="Requests" Style="{StaticResource LabelText}"/>
+                                <TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding Requests}"/>
+                                <TextBlock Grid.Row="6" Grid.Column="0" Text="Warnings" Style="{StaticResource LabelText}"/>
+                                <TextBlock Grid.Row="6" Grid.Column="1" Text="{Binding Warnings}"/>
+                                <TextBlock Grid.Row="7" Grid.Column="0" Text="Errors" Style="{StaticResource LabelText}"/>
+                                <TextBlock Grid.Row="7" Grid.Column="1" Text="{Binding Errors}"/>
+                                <TextBlock Grid.Row="8" Grid.Column="0" Text="Binary" Style="{StaticResource LabelText}" VerticalAlignment="Top" Margin="0,4,0,0"/>
+                                <TextBlock Grid.Row="8" Grid.Column="1" Text="{Binding BinaryPath}" TextWrapping="Wrap" FontSize="11" Margin="0,4,0,0"/>
+                            </Grid>
+                            <TextBlock Text="Last self-test" Style="{StaticResource LabelText}" Margin="0,12,0,2"/>
+                            <TextBlock Text="{Binding LastSelfTest}" TextWrapping="Wrap" FontSize="11.5"/>
+                            <TextBlock Text="Running job" Style="{StaticResource LabelText}" Margin="0,10,0,2"/>
+                            <TextBlock Text="{Binding RunningJob}"/>
+                            <StackPanel Orientation="Horizontal" Margin="0,14,0,0">
+                                <Button Content="Self-test" Command="{Binding SelfTestCommand}"/>
+                                <Button Content="Copy endpoint" Command="{Binding CopyEndpointCommand}" Margin="8,0,0,0"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Grid.Column="2" Style="{StaticResource Panel}">
+                        <DockPanel>
+                            <Grid DockPanel.Dock="Top" Margin="0,0,0,8">
+                                <TextBlock Text="WORKSPACE (assemblies loaded by any connected client)" Style="{StaticResource HeaderText}" HorizontalAlignment="Left"/>
+                                <Button Content="Refresh status" Command="{Binding RefreshStatusCommand}" HorizontalAlignment="Right" Padding="8,3"/>
+                            </Grid>
+                            <DataGrid ItemsSource="{Binding Assemblies}" IsReadOnly="True">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Id" Binding="{Binding Id}" Width="140"/>
+                                    <DataGridTextColumn Header="Path" Binding="{Binding Path}" Width="3*"/>
+                                    <DataGridCheckBoxColumn Header="Active" Binding="{Binding Active}" Width="60"/>
+                                    <DataGridCheckBoxColumn Header="Modified" Binding="{Binding Modified}" Width="70"/>
+                                    <DataGridTextColumn Header="Types" Binding="{Binding Types}" Width="60"/>
+                                    <DataGridTextColumn Header="Methods" Binding="{Binding Methods}" Width="70"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </DockPanel>
+                    </Border>
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="Settings">
+                <Border Style="{StaticResource Panel}" Margin="0,8,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" MinWidth="420">
+                    <StackPanel DataContext="{Binding SelectedProfile}">
+                        <TextBlock Text="SERVER SETTINGS (current profile)" Style="{StaticResource HeaderText}" Margin="0,0,0,10"/>
+                        <TextBlock Text="Host" Style="{StaticResource LabelText}"/>
+                        <TextBox Text="{Binding Host, UpdateSourceTrigger=PropertyChanged}" Margin="0,2,0,8"/>
+                        <TextBlock Text="Port" Style="{StaticResource LabelText}"/>
+                        <TextBox Text="{Binding Port, UpdateSourceTrigger=PropertyChanged}" Margin="0,2,0,8"/>
+                        <TextBlock Text="Endpoint path" Style="{StaticResource LabelText}"/>
+                        <TextBox Text="{Binding Path, UpdateSourceTrigger=PropertyChanged}" Margin="0,2,0,8"/>
+                        <TextBlock Text="Log level" Style="{StaticResource LabelText}"/>
+                        <ComboBox SelectedItem="{Binding LogLevel}" Margin="0,2,0,8">
+                            <ComboBoxItem Content="Trace"/><ComboBoxItem Content="Debug"/><ComboBoxItem Content="Information"/>
+                            <ComboBoxItem Content="Warning"/><ComboBoxItem Content="Error"/>
+                        </ComboBox>
+                        <TextBlock Text="Extra allowed Host headers (comma-separated)" Style="{StaticResource LabelText}"/>
+                        <TextBox Text="{Binding AllowedHosts, UpdateSourceTrigger=PropertyChanged}" Margin="0,2,0,8"/>
+                        <CheckBox Content="Read-only (disable patch/rename/save tools)" IsChecked="{Binding ReadOnly}" Margin="0,4,0,4"/>
+                    </StackPanel>
+                </Border>
+            </TabItem>
+
+            <TabItem Header="Transport">
+                <Border Style="{StaticResource Panel}" Margin="0,8,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" MinWidth="460">
+                    <StackPanel DataContext="{Binding SelectedProfile}">
+                        <TextBlock Text="TRANSPORT &amp; AUTH (current profile)" Style="{StaticResource HeaderText}" Margin="0,0,0,10"/>
+                        <TextBlock Text="Streamable HTTP is the only transport this console manages; stdio servers are launched directly by the client and have nothing to supervise here." Style="{StaticResource LabelText}" TextWrapping="Wrap" Margin="0,0,0,10"/>
+                        <CheckBox Content="Disable bearer auth (--no-auth, loopback bind only)" IsChecked="{Binding NoAuth}" Margin="0,0,0,8"/>
+                        <TextBlock Text="Bearer token of the running server" Style="{StaticResource LabelText}" DataContext="{Binding DataContext, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                        <TextBox Text="{Binding Token, RelativeSource={RelativeSource AncestorType=Window}, Mode=OneWay}" IsReadOnly="True" Margin="0,2,0,8"/>
+                        <TextBlock Text="TLS certificate file (optional, enables HTTPS)" Style="{StaticResource LabelText}"/>
+                        <TextBox Text="{Binding SslCertFile, UpdateSourceTrigger=PropertyChanged}" Margin="0,2,0,8"/>
+                        <TextBlock Text="TLS key file (optional, PEM)" Style="{StaticResource LabelText}"/>
+                        <TextBox Text="{Binding SslKeyFile, UpdateSourceTrigger=PropertyChanged}" Margin="0,2,0,8"/>
+                    </StackPanel>
+                </Border>
+            </TabItem>
+
+            <TabItem Header="Maintenance">
+                <Border Style="{StaticResource Panel}" Margin="0,8,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" MinWidth="360">
+                    <StackPanel>
+                        <TextBlock Text="MAINTENANCE" Style="{StaticResource HeaderText}" Margin="0,0,0,10"/>
+                        <Button Content="Build (Release)" Command="{Binding BuildCommand}" Margin="0,0,0,6" HorizontalAlignment="Left" Padding="14,6"/>
+                        <Button Content="Run tests" Command="{Binding TestCommand}" Margin="0,0,0,6" HorizontalAlignment="Left" Padding="14,6"/>
+                        <Button Content="Build distribution package (dist\)" Command="{Binding PackDistCommand}" Margin="0,0,0,6" HorizontalAlignment="Left" Padding="14,6"/>
+                        <Button Content="Pack NuGet tool package" Command="{Binding PackNuGetCommand}" Margin="0,0,0,6" HorizontalAlignment="Left" Padding="14,6"/>
+                        <TextBlock Text="Output streams to the console log below." Style="{StaticResource LabelText}" Margin="0,10,0,0"/>
+                    </StackPanel>
+                </Border>
+            </TabItem>
+
+            <TabItem Header="Integration">
+                <Border Style="{StaticResource Panel}" Margin="0,8,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" MinWidth="460">
+                    <StackPanel>
+                        <TextBlock Text="CLIENT REGISTRATION" Style="{StaticResource HeaderText}" Margin="0,0,0,10"/>
+                        <Border Background="#332e1f" BorderBrush="#d9a22e" BorderThickness="1" CornerRadius="4" Padding="8" Margin="0,0,0,10"
+                                Visibility="{Binding ClaudeDesktopRunning, Converter={StaticResource BoolToVis}}">
+                            <TextBlock Text="Claude Desktop is running: it may overwrite its config with its own in-memory copy after registering. Quit it fully first for a guaranteed update." TextWrapping="Wrap" FontSize="11.5"/>
+                        </Border>
+                        <CheckBox Content="Register as read-only (--read-only)" IsChecked="{Binding IntegrationReadOnly}" Margin="0,0,0,10"/>
+
+                        <Grid Margin="0,0,0,6">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="160"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                            <TextBlock Text="Claude Code" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="1" Text="{Binding ClaudeCodeRegistered, StringFormat='[{0}]'}" Style="{StaticResource LabelText}" VerticalAlignment="Center" Margin="8,0"/>
+                            <Button Grid.Column="2" Content="Register" Command="{Binding RegisterClaudeCodeCommand}" HorizontalAlignment="Left" Padding="10,4"/>
+                        </Grid>
+                        <Grid Margin="0,0,0,6">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="160"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                            <TextBlock Text="Claude Desktop" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="1" Text="{Binding ClaudeDesktopRegistered, StringFormat='[{0}]'}" Style="{StaticResource LabelText}" VerticalAlignment="Center" Margin="8,0"/>
+                            <Button Grid.Column="2" Content="Register" Command="{Binding RegisterClaudeDesktopCommand}" HorizontalAlignment="Left" Padding="10,4"/>
+                        </Grid>
+                        <Grid Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="160"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                            <TextBlock Text="Codex" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="1" Text="{Binding CodexRegistered, StringFormat='[{0}]'}" Style="{StaticResource LabelText}" VerticalAlignment="Center" Margin="8,0"/>
+                            <Button Grid.Column="2" Content="Register" Command="{Binding RegisterCodexCommand}" HorizontalAlignment="Left" Padding="10,4"/>
+                        </Grid>
+                        <StackPanel Orientation="Horizontal">
+                            <Button Content="Register all" Style="{StaticResource PrimaryButton}" Command="{Binding RegisterAllCommand}"/>
+                            <Button Content="Recheck status" Command="{Binding CheckRegistrationCommand}" Margin="8,0,0,0"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+            </TabItem>
+        </TabControl>
+
+        <!-- Console log + Problems -->
+        <Grid Grid.Row="4">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="3*"/>
+                <ColumnDefinition Width="8"/>
+                <ColumnDefinition Width="1.3*"/>
+            </Grid.ColumnDefinitions>
+
+            <Border Grid.Column="0" Style="{StaticResource Panel}">
+                <DockPanel>
+                    <Grid DockPanel.Dock="Top" Margin="0,0,0,6">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="CONSOLE" Style="{StaticResource HeaderText}" VerticalAlignment="Center"/>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="16,0,0,0" VerticalAlignment="Center">
+                            <CheckBox Content="error" IsChecked="{Binding ShowError}" Margin="0,0,10,0"/>
+                            <CheckBox Content="warning" IsChecked="{Binding ShowWarning}" Margin="0,0,10,0"/>
+                            <CheckBox Content="status" IsChecked="{Binding ShowInfo}" Margin="0,0,10,0"/>
+                            <CheckBox Content="request" IsChecked="{Binding ShowRequest}" Margin="0,0,10,0"/>
+                            <CheckBox Content="debug" IsChecked="{Binding ShowDebug}" Margin="0,0,16,0"/>
+                            <TextBox Width="180" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                                     Tag="search log..."/>
+                            <CheckBox Content="autoscroll" IsChecked="{Binding AutoScroll}" Margin="16,0,10,0"/>
+                            <CheckBox Content="wrap" IsChecked="{Binding WrapLog}"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2" Orientation="Horizontal">
+                            <Button Content="Save" Command="{Binding SaveLogCommand}"/>
+                            <Button Content="Clear" Command="{Binding ClearLogCommand}" Margin="6,0,0,0"/>
+                        </StackPanel>
+                    </Grid>
+                    <ListBox ItemsSource="{Binding LogView}" ItemTemplate="{StaticResource LogRowTemplate}" BorderThickness="0"
+                             ScrollViewer.HorizontalScrollBarVisibility="Auto" x:Name="LogListBox"/>
+                </DockPanel>
+            </Border>
+
+            <Border Grid.Column="2" Style="{StaticResource Panel}">
+                <DockPanel>
+                    <Grid DockPanel.Dock="Top" Margin="0,0,0,6">
+                        <TextBlock Style="{StaticResource HeaderText}">
+                            <Run Text="PROBLEMS ("/><Run Text="{Binding Errors, Mode=OneWay}"/><Run Text=" err / "/><Run Text="{Binding Warnings, Mode=OneWay}"/><Run Text=" warn)"/>
+                        </TextBlock>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                            <Button Content="Copy" Command="{Binding CopyProblemsCommand}" Padding="8,3"/>
+                            <Button Content="Clear" Command="{Binding ClearProblemsCommand}" Margin="6,0,0,0" Padding="8,3"/>
+                        </StackPanel>
+                    </Grid>
+                    <ListBox ItemsSource="{Binding Problems}" ItemTemplate="{StaticResource LogRowTemplate}" BorderThickness="0"/>
+                </DockPanel>
+            </Border>
+        </Grid>
+
+        <!-- Status bar -->
+        <Grid Grid.Row="5" Margin="0,8,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="180"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <ProgressBar Grid.Column="0" IsIndeterminate="{Binding IsBusy}" Visibility="{Binding IsBusy, Converter={StaticResource BoolToVis}}" VerticalAlignment="Center"/>
+            <TextBlock Grid.Column="1" Text="{Binding RunningJob}" Style="{StaticResource LabelText}" VerticalAlignment="Center" Margin="10,0,0,0"/>
+            <StackPanel Grid.Column="2" Orientation="Horizontal">
+                <TextBlock Text="{Binding Errors, StringFormat='{}{0} errors'}" Style="{StaticResource LabelText}" Margin="0,0,14,0"/>
+                <TextBlock Text="{Binding Warnings, StringFormat='{}{0} warnings'}" Style="{StaticResource LabelText}" Margin="0,0,14,0"/>
+                <TextBlock Text="{Binding Requests, StringFormat='{}{0} requests'}" Style="{StaticResource LabelText}"/>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</Window>

@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Windows-only GUI console for mcp-dotNET: build/test, start/stop the HTTP transport, watch its
+    health and the live workspace (assemblies loaded by any connected client), register with
+    Claude Code/Desktop/Codex, and a filterable log + problems panel. Deliberately excluded from
+    mcp-dotnet.slnx's cross-platform restore/build (see ci.yml): net-windows TFM, WPF, no Linux SDK
+    support. scripts/console.ps1 remains the cross-platform, dependency-free text console.
+  -->
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <RootNamespace>MCPPOC.Console</RootNamespace>
+    <AssemblyName>mcp-dotnet-console</AssemblyName>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+  </PropertyGroup>
+
+</Project>

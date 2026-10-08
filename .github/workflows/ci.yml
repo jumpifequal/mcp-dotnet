@@ -25,3 +25,8 @@ jobs:
         with:
           name: nupkg
           path: artifacts/*.nupkg
+      # GUI console: net10.0-windows + WPF, built only here (Linux has no Windows Desktop runtime pack).
+      # Deliberately not part of mcp-dotnet.slnx so the cross-platform restore/build/test above never
+      # touches it; mcp-dotnet.windows.slnx is the Windows-only solution that includes it for IDE use.
+      - if: matrix.os == 'windows-latest'
+        run: dotnet build src/MCPPOC.Console/MCPPOC.Console.csproj -c Release

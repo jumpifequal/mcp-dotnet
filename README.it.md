@@ -73,7 +73,7 @@ Riavvia il client e chiedi: *"carica C:\percorso\App.dll e riassumi cosa fa a pa
 
 ## La console
 
-`console.bat` è una console testuale opzionale che compila il server, avvia e sorveglia il trasporto HTTP, stampa l'endpoint e il token bearer, esegue un controllo di salute e i test — utile quando esponi il server via HTTP. Vedi [la console](docs/it/tweaking.md#console).
+`console.bat` apre una GUI nativa (profili, Avvia/Ferma/Riavvia, stato del workspace in tempo reale, un log filtrabile e il pannello Problems, build/test, e registrazione con un clic in Claude Code/Desktop/Codex) — utile quando esponi il server via HTTP; ripiega su una console testuale se il Windows Desktop Runtime non è disponibile. Vedi [la console](docs/it/tweaking.md#console).
 
 ## Documentazione
 

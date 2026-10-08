@@ -89,7 +89,14 @@ mcp-dotnet [--transport stdio|http] [opzioni]
 
 ## Console
 
-`console.bat` (Windows) apre un piccolo gestore testuale che: compila il server, avvia/ferma il trasporto HTTP con un token nuovo, stampa l'endpoint e la riga `claude mcp add` esatta, esegue un controllo di salute (un vero `initialize`), mostra la coda del log, genera un token ed esegue i test. È comodo quando esponi il server via HTTP; per stdio non c'è nulla da avviare, perché è il client a lanciare il server.
+`console.bat` apre una GUI nativa WPF (la compila al primo avvio se serve): un'intestazione con il selettore di **profilo** del server (Nuovo/Elimina) e **Avvia server / Ferma / Riavvia**, una scheda **Overview** con un pannello server (stato, endpoint, PID, uptime, richieste/avvisi/errori, ultimo self-test, percorso del binario, pulsanti Self-test e Copia endpoint) accanto a un pannello **Workspace** live che elenca gli assembly caricati da qualunque client collegato a quel server, **Settings** (host/porta/percorso/livello di log/read-only per profilo), **Transport** (token bearer, `--no-auth`, certificato/chiave TLS), **Maintenance** (Build, Esegui test, crea il pacchetto `dist/`, impacchetta lo strumento NuGet) e **Integration** (registra/riverifica Claude Code, Claude Desktop e Codex, con un avviso se Claude Desktop è in esecuzione — vedi [Limite noto](#limite-noto-claude-desktop-sovrascrive-la-propria-configurazione)). Sotto, un log filtrabile e ricercabile (error/warning/status/request/debug, autoscroll, wrap, save/clear) e un pannello **Problems** (errori + avvisi, copia/pulisci), con una barra di stato che mostra il job in corso e i totali.
+
+Gestisce solo il **trasporto HTTP** (c'è qualcosa da avviare, fermare e osservare); per stdio non c'è nulla da sorvegliare, perché è il client a lanciare quel server. Se il Windows Desktop Runtime non è disponibile, `console.bat` ripiega automaticamente su `scripts/console.ps1`, una console testuale senza dipendenze con le stesse azioni principali (build, avvio/arresto, stato/controllo di salute, coda del log, generazione di un token, esecuzione dei test) — anche la scelta giusta per una sessione non interattiva o scriptata.
+
+### Limite noto: Claude Desktop sovrascrive la propria configurazione
+
+Claude Desktop mantiene una copia in memoria di `claude_desktop_config.json` mentre è in esecuzione e può sovrascrivere il file su disco con quella copia (ad esempio quando salva altre preferenze), annullando silenziosamente una modifica fatta da `install.ps1` o dalla scheda Integration della console mentre l'app restava aperta. Entrambi ora avvisano quando Claude Desktop è in esecuzione al momento della registrazione. Per un aggiornamento garantito: chiudi completamente Claude Desktop (icona in tray > Quit, non solo la finestra), registra, poi riavvialo.
+
 
 ## Note di sicurezza
 
