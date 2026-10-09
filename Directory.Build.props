@@ -20,7 +20,8 @@
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <Version>2.0.0</Version>
     <Authors>neoz and contributors</Authors>
-    <RepositoryUrl>https://github.com/neoz/mcp-dotnet</RepositoryUrl>
+    <RepositoryUrl>https://github.com/jumpifequal/mcp-dotnet</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/jumpifequal/mcp-dotnet</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 </Project>

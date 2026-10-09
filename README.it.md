@@ -73,7 +73,7 @@ Riavvia il client e chiedi: *"carica C:\percorso\App.dll e riassumi cosa fa a pa
 
 ## La console
 
-`console.bat` apre una GUI nativa (profili, Avvia/Ferma/Riavvia, stato del workspace in tempo reale, un log filtrabile e il pannello Problems, build/test, e registrazione con un clic in Claude Code/Desktop/Codex) — utile quando esponi il server via HTTP; ripiega su una console testuale se il Windows Desktop Runtime non è disponibile. Vedi [la console](docs/it/tweaking.md#console).
+`Scripts\console.bat` apre una GUI nativa (profili, Avvia/Ferma/Riavvia, stato del workspace in tempo reale, un log filtrabile e il pannello Problems, build/test, e registrazione con un clic in Claude Code/Desktop/Codex) — utile quando esponi il server via HTTP; ripiega su una console testuale se il Windows Desktop Runtime non è disponibile. Vedi [la console](docs/it/tweaking.md#console).
 
 ## Documentazione
 

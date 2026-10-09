@@ -73,7 +73,7 @@ Restart your client and ask: *"load C:\path\to\App.dll and summarise what it doe
 
 ## The console
 
-`console.bat` opens a native GUI (profiles, Start/Stop/Restart, live workspace status, a filterable log and Problems panel, build/test, and one-click registration with Claude Code/Desktop/Codex) — useful when you expose the server over HTTP; falls back to a text console if the Windows Desktop Runtime isn't available. See [the console](docs/en/tweaking.md#console).
+`Scripts\console.bat` opens a native GUI (profiles, Start/Stop/Restart, live workspace status, a filterable log and Problems panel, build/test, and one-click registration with Claude Code/Desktop/Codex) — useful when you expose the server over HTTP; falls back to a text console if the Windows Desktop Runtime isn't available. See [the console](docs/en/tweaking.md#console).
 
 ## Documentation
 

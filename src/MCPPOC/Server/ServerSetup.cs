@@ -40,7 +40,7 @@ public static class ServerSetup
                 Title = ".NET Reverse Engineering (dnlib + ILSpy)",
                 Version = Version,
                 Description = "Inspect, decompile, cross-reference, scan and patch .NET assemblies.",
-                WebsiteUrl = "https://github.com/neoz/mcp-dotnet",
+                WebsiteUrl = "https://github.com/jumpifequal/mcp-dotnet",
             };
             o.ServerInstructions = Instructions + (settings.ReadOnly ? "\nThis server runs in READ-ONLY mode: patching and saving tools are disabled." : "");
         });

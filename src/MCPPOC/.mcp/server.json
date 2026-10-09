@@ -1,10 +1,10 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-10-17/server.schema.json",
-  "name": "io.github.neoz/mcp-dotnet",
-  "description": "Reverse engineer .NET assemblies: metadata, xrefs, IL, ILSpy decompilation, API risk scan and IL patching.",
+  "name": "io.github.jumpifequal/mcp-dotnet",
+  "description": "Reverse engineer .NET assemblies: metadata, xrefs, IL, ILSpy decompilation, API risk scan and IL patching. Fork of neoz/mcp-dotnet.",
   "version": "2.0.0",
   "repository": {
-    "url": "https://github.com/neoz/mcp-dotnet",
+    "url": "https://github.com/jumpifequal/mcp-dotnet",
     "source": "github"
   },
   "packages": [
