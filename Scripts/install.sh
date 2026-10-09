@@ -25,11 +25,25 @@ extra=(); [ "$readonly_flag" = 1 ] && extra=(--read-only)
 
 step() { printf '\033[36m==> %s\033[0m\n' "$1"; }
 
+# Flattens bin/ to a single level of DLL/EXE after a build, matching Scripts/flatten-bin.ps1 (kept
+# separate, in plain bash, so this script needs nothing beyond dotnet/git/python3 -- no pwsh).
+flatten_bin() {
+  for proj_tfm in "MCPPOC:net10.0" "MCPPOC.Console:net10.0-windows"; do
+    name="${proj_tfm%%:*}"; tfm="${proj_tfm##*:}"
+    src="$repo/bin/$name/Release/$tfm"
+    [ -d "$src" ] || continue
+    find "$src" -maxdepth 1 -type f -exec cp -f {} "$repo/bin/" \;
+    rm -rf "$repo/bin/$name"
+  done
+  find "$repo/bin" -maxdepth 1 -type d -name '*_wpftmp' -exec rm -rf {} \; 2>/dev/null || true
+}
+
 if [ "$nobuild" = 0 ]; then
   step "Building mcp-dotNET (Release)..."
   dotnet build "$project" -c Release >/dev/null
+  flatten_bin
 fi
-dll="$repo/bin/MCPPOC/Release/net10.0/mcp-dotnet.dll"
+dll="$repo/bin/mcp-dotnet.dll"
 [ -f "$dll" ] || { echo "Server binary not found at $dll" >&2; exit 1; }
 echo "    binary: $dll"
 

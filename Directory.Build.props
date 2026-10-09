@@ -1,9 +1,13 @@
 <Project>
-  <!-- Centralized compile-time output, applied to every project before the SDK sets its defaults:
-       final (Release/Debug) binaries land in bin\<ProjectName>\<Config>\<TFM>\, intermediate/
-       compile-time files in obj\<ProjectName>\, both at the repository root, rather than one
-       bin/obj pair scattered per project under src/ and tests/. -->
-  <PropertyGroup>
+  <!-- Centralized compile-time output for the two shipped projects (server, GUI console), applied
+       before the SDK sets its defaults: final binaries land in bin\<ProjectName>\<Config>\<TFM>\,
+       intermediate files in obj\<ProjectName>\, both at the repository root. Scripts/flatten-bin.ps1
+       runs after a Release build (install.ps1, the console's Build action, CI) and copies the final
+       DLL/EXE straight into bin\ itself, one level, no subfolders, only what a recipient would get
+       in an official distribution, then removes the now-empty per-project subfolders. Projects
+       under tests\ are deliberately excluded here: they are never shipped, so they keep the SDK's
+       normal per-project bin/obj instead of landing in the clean release output. -->
+  <PropertyGroup Condition="!$(MSBuildProjectDirectory.Replace('\', '/').Contains('/tests/'))">
     <BaseOutputPath>$(MSBuildThisFileDirectory)bin\$(MSBuildProjectName)\</BaseOutputPath>
     <BaseIntermediateOutputPath>$(MSBuildThisFileDirectory)obj\$(MSBuildProjectName)\</BaseIntermediateOutputPath>
   </PropertyGroup>

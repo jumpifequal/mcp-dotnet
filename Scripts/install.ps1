@@ -59,7 +59,7 @@ if (-not (Get-Command dotnet -ErrorAction SilentlyContinue)) {
 }
 # A distribution package ships the published binary under .\app\ and no source tree.
 $distDll = Join-Path $repo 'app/mcp-dotnet.dll'
-$repoDll = Join-Path $repo 'bin/MCPPOC/Release/net10.0/mcp-dotnet.dll'
+$repoDll = Join-Path $repo 'bin/mcp-dotnet.dll'
 $isDistPackage = Test-Path $distDll
 
 if (-not $NoBuild -and -not $isDistPackage) {
@@ -67,6 +67,7 @@ if (-not $NoBuild -and -not $isDistPackage) {
     Step 'Building mcp-dotNET (Release)...'
     dotnet build $project -c Release | Out-Null
     if ($LASTEXITCODE -ne 0) { throw 'Build failed.' }
+    & (Join-Path $PSScriptRoot 'flatten-bin.ps1')
 }
 $dll = if ($isDistPackage) { $distDll } else { $repoDll }
 if (-not (Test-Path $dll)) { throw "Server binary not found at $dll. Run without -NoBuild first." }

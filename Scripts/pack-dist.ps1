@@ -76,7 +76,7 @@ foreach ($s in 'install.ps1', 'setup.bat', 'console.bat', 'console.ps1', 'instal
 if ($env:OS -eq 'Windows_NT') {
     Step 'Publishing GUI console...'
     $consoleProject = Join-Path $repo 'Console/MCPPOC.Console.csproj'
-    $consoleOut = Join-Path $pkgDir 'bin/MCPPOC.Console/Release/net10.0-windows'
+    $consoleOut = Join-Path $pkgDir 'bin'
     dotnet publish $consoleProject -c Release -o $consoleOut --nologo --no-self-contained | Out-Null
     if ($LASTEXITCODE -ne 0) { Write-Warning 'GUI console publish failed; the package will fall back to the text console.' }
 }
@@ -103,7 +103,7 @@ Full docs: README.md / docs\. $(if (-not $SelfContained) {"Requires the .NET 10 
 "@ | Set-Content -Path (Join-Path $pkgDir 'RUNME.txt') -Encoding UTF8
 
 # install.ps1 in the package should default to the published app dir, not rebuild.
-# (install.ps1 -NoBuild looks under bin/MCPPOC/...; add a tiny shim path file for clarity.)
+# (install.ps1 -NoBuild looks under bin/mcp-dotnet.dll for a dev checkout; add a tiny shim path file for clarity.)
 "$exeName" | Set-Content -Path (Join-Path $pkgDir 'app/.binary') -Encoding UTF8
 
 # 3. NuGet package ----------------------------------------------------------

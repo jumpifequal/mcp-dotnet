@@ -1,6 +1,8 @@
-# --- build output (centralized at the repo root, see Directory.Build.props)
-/bin/
-/obj/
+# --- build output: bin/ and obj/ centralized at the repo root for the server and GUI console (see
+# Directory.Build.props), and left at the per-project default under tests/ -- not anchored to the
+# root, so both shapes are covered.
+bin/
+obj/
 /artifacts
 TestResults/
 

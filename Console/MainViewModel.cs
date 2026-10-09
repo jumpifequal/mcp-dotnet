@@ -65,7 +65,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         ClearProblemsCommand = new RelayCommand(() => { var toRemove = LogEntries.Where(e => e.Level is LogLevel.Error or LogLevel.Warning).ToList(); foreach (var e in toRemove) LogEntries.Remove(e); });
         CopyProblemsCommand = new RelayCommand(() => Clipboard.SetText(string.Join(Environment.NewLine, Problems.Select(p => $"{p.TimeText} {p.Source} {p.Message}"))));
 
-        BuildCommand = new AsyncRelayCommand(() => RunToolAsync("dotnet", $"build \"{Path.Combine(_repoRoot, "mcp-dotnet.slnx")}\" -c Release", "build"));
+        BuildCommand = new AsyncRelayCommand(() => RunBuildAsync());
         TestCommand = new AsyncRelayCommand(() => RunToolAsync("dotnet", $"test \"{Path.Combine(_repoRoot, "mcp-dotnet.slnx")}\" -c Release --no-build", "test"));
         PackDistCommand = new AsyncRelayCommand(() => RunToolAsync("powershell.exe", $"-NoProfile -ExecutionPolicy Bypass -File \"{Path.Combine(_repoRoot, "Scripts", "pack-dist.ps1")}\"", "pack-dist"));
         PackNuGetCommand = new AsyncRelayCommand(() => RunToolAsync("dotnet", $"pack \"{Path.Combine(_repoRoot, "src", "MCPPOC", "MCPPOC.csproj")}\" -c Release -o \"{Path.Combine(_repoRoot, "Distribution")}\"", "pack"));
@@ -290,6 +290,14 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         AddLog(p.ExitCode == 0 ? LogLevel.Status : LogLevel.Error, jobName, $"exit code {p.ExitCode}");
         RunningJob = "-"; OnPropertyChanged(nameof(RunningJob));
         IsBusy = false; OnPropertyChanged(nameof(IsBusy));
+    }
+
+    // Build, then flatten bin/ into the clean, distribution-shaped layout (one level, DLL/EXE only)
+    // that ServerProcessManager.FindServerDll and every launch script expect.
+    private async Task RunBuildAsync()
+    {
+        await RunToolAsync("dotnet", $"build \"{Path.Combine(_repoRoot, "mcp-dotnet.slnx")}\" -c Release", "build");
+        await RunToolAsync("powershell.exe", $"-NoProfile -ExecutionPolicy Bypass -File \"{Path.Combine(_repoRoot, "Scripts", "flatten-bin.ps1")}\"", "build");
     }
 
     public bool IsBusy { get; private set; }

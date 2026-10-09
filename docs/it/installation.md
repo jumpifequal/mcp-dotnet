@@ -48,7 +48,7 @@ Compila una volta:
 dotnet build -c Release
 ```
 
-Il DLL del server è in `bin/MCPPOC/Release/net10.0/mcp-dotnet.dll`. Avvialo tramite l'host condiviso `dotnet`.
+Il DLL del server è in `bin/mcp-dotnet.dll` (una build Release appiattisce anche `bin/` a questo singolo livello tramite `Scripts/flatten-bin.ps1`, eseguito automaticamente da `Scripts/install.ps1`). Avvialo tramite l'host condiviso `dotnet`.
 
 ### Collega il tuo client AI
 
@@ -70,7 +70,7 @@ Togli `--read-only` per abilitare la patch. Riavvia completamente Claude Desktop
 **Claude Code**
 
 ```bash
-claude mcp add dotnet -- dotnet /percorso/bin/MCPPOC/Release/net10.0/mcp-dotnet.dll
+claude mcp add dotnet -- dotnet /percorso/bin/mcp-dotnet.dll
 ```
 
 **Codex** — aggiungi a `~/.codex/config.toml`:
@@ -78,7 +78,7 @@ claude mcp add dotnet -- dotnet /percorso/bin/MCPPOC/Release/net10.0/mcp-dotnet.
 ```toml
 [mcp_servers.dotnet]
 command = "dotnet"
-args = ["/percorso/bin/MCPPOC/Release/net10.0/mcp-dotnet.dll"]
+args = ["/percorso/bin/mcp-dotnet.dll"]
 ```
 
 ### Client OpenAI
@@ -110,7 +110,7 @@ Per Claude Code o un server condiviso, avvia il trasporto HTTP invece di stdio:
 
 ```bash
 # genera un token una volta
-dotnet bin/MCPPOC/Release/net10.0/mcp-dotnet.dll --gen-token
+dotnet bin/mcp-dotnet.dll --gen-token
 # avvia il server (loopback, autenticazione bearer)
 set MCP_DOTNET_HTTP_TOKEN=<token>        # export su Linux/macOS
 dotnet .../mcp-dotnet.dll --transport http --port 5005

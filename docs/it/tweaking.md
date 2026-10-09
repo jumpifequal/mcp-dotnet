@@ -127,7 +127,10 @@ powershell -ExecutionPolicy Bypass -File .\Scripts\pack-dist.ps1 -SelfContained 
 ```bash
 dotnet build mcp-dotnet.slnx -c Release
 dotnet test mcp-dotnet.slnx
+powershell -ExecutionPolicy Bypass -File Scripts/flatten-bin.ps1   # appiattisce bin/ a solo server + console (DLL/EXE)
 ```
+
+`Scripts/install.ps1` e l'azione Build della console eseguono il passo di appiattimento automaticamente; chiamalo tu stesso dopo un semplice `dotnet build`.
 
 ```
 src/MCPPOC/            server (mcp-dotnet)
@@ -140,7 +143,8 @@ tests/MCPPOC.Tests/    test unitari, patch end-to-end e protocollo MCP
 tests/TestTarget/      assembly deterministico analizzato e patchato dai test
 tests/fixtures/        binari di terze parti usati come input dei test
 Scripts/               install.ps1, setup.bat, console.bat/.ps1, install.sh, pack-dist.ps1, helper di pubblicazione
-bin/, obj/             output di compilazione centralizzato (ignorato da git; vedi Directory.Build.props)
+bin/                   server + console GUI, appiattiti su un livello (ignorato da git; Scripts/flatten-bin.ps1)
+obj/                   output di compilazione, per progetto (ignorato da git; vedi Directory.Build.props)
 Distribution/          output di Scripts/pack-dist.ps1 (ignorato da git)
 ```
 

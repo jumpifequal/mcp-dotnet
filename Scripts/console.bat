@@ -5,13 +5,14 @@ rem same folder) if the GUI can't be built (e.g. the Windows Desktop Runtime isn
 setlocal
 set "HERE=%~dp0"
 set "REPO=%HERE%.."
-set "GUI_EXE=%REPO%\bin\MCPPOC.Console\Release\net10.0-windows\mcp-dotnet-console.exe"
+set "GUI_EXE=%REPO%\bin\mcp-dotnet-console.exe"
 
 if exist "%GUI_EXE%" goto :launch_gui
 
 where dotnet >nul 2>&1 || goto :fallback
 echo Building the GUI console (first run only)...
 dotnet build "%REPO%\Console\MCPPOC.Console.csproj" -c Release >nul 2>&1
+powershell -NoProfile -ExecutionPolicy Bypass -File "%REPO%\Scripts\flatten-bin.ps1" >nul 2>&1
 if exist "%GUI_EXE%" goto :launch_gui
 
 :fallback

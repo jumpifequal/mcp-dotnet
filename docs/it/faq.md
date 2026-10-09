@@ -4,7 +4,7 @@
 
 ### Il client non vede il server / non compaiono strumenti
 
-- Verifica che la build esista: `bin/MCPPOC/Release/net10.0/mcp-dotnet.dll`.
+- Verifica che la build esista: `bin/mcp-dotnet.dll`.
 - Controlla che il comando parta: `dotnet .../mcp-dotnet.dll --help` deve stampare l'uso.
 - Riavvia completamente il client (Claude Desktop va chiuso dalla traybar, non solo con la X).
 - Controlla il percorso di configurazione e che `command`/`args` siano corretti. I log vanno su stderr; alzali con `--log-level Information`.

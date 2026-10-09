@@ -30,3 +30,6 @@ jobs:
       # touches it; mcp-dotnet.windows.slnx is the Windows-only solution that includes it for IDE use.
       - if: matrix.os == 'windows-latest'
         run: dotnet build Console/MCPPOC.Console.csproj -c Release
+      # Runs last (test/pack above need the per-project build output still in place): flattens bin/ to
+      # a single level of DLL/EXE, verifying Scripts/flatten-bin.ps1 end-to-end on both OSes.
+      - run: pwsh Scripts/flatten-bin.ps1
