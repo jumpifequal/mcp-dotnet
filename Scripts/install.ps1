@@ -213,6 +213,8 @@ function Configure-ClaudeCode {
     Step 'Claude Code'
     $cli = Find-ClaudeCodeCli
     if ($cli) {
+        # Re-running after the binary moved must update the entry, not fail on "already exists".
+        & $cli mcp remove $Name 2>&1 | Out-Null
         if ($Transport -eq 'http') {
             & $cli mcp add $Name --transport http "http://127.0.0.1:$Port/mcp" --header "Authorization: Bearer $httpToken"
         } else {
@@ -239,8 +241,13 @@ function Configure-Codex {
     $argsToml = (@($dll) + $commonArgs | ForEach-Object { ConvertTo-TomlString $_ }) -join ', '
     $block = "[mcp_servers.$Name]`ncommand = `"dotnet`"`nargs = [$argsToml]`n"
     $existing = if (Test-Path $path) { Get-Content $path -Raw } else { '' }
-    if ($existing -match "(?m)^\[mcp_servers\.$([regex]::Escape($Name))\]") {
-        Write-Warning "Codex already has [mcp_servers.$Name]; leaving it untouched. New block:"; Write-Host $block; return
+    $blockPattern = "(?ms)^\[mcp_servers\.$([regex]::Escape($Name))\]\r?\n.*?(?=^\[|\z)"
+    if ($existing -match $blockPattern) {
+        # Update in place: a previous registration may point at a binary location that no longer exists.
+        Backup $path
+        Write-Utf8NoBom -Path $path -Content ([regex]::Replace($existing, $blockPattern, ($block + "`n")))
+        Write-Host "    updated existing [mcp_servers.$Name] in $path" -ForegroundColor Green
+        return
     }
     Backup $path
     $sep = if ($existing.Length -gt 0 -and -not $existing.EndsWith("`n")) { "`n`n" } else { "`n" }
