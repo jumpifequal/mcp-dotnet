@@ -30,3 +30,4 @@ Scripts/publish-to-github.ps1
 
 # --- distribution output (built by Scripts/pack-dist.ps1)
 Distribution/
+!Distribution/mcp-dotnet-*.zip
