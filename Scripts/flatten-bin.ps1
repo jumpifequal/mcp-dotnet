@@ -33,7 +33,7 @@ foreach ($proj in $projects) {
     # Built via Join-Path (not a "name\config\tfm" string) so this works with either path separator.
     $src = Join-Path (Join-Path (Join-Path $bin $proj.Name) $Configuration) $proj.Tfm
     if (-not (Test-Path $src)) { continue }
-    Get-ChildItem -Path $src -File | ForEach-Object {
+    Get-ChildItem -Path $src -File | Where-Object { $_.Extension -ne '.pdb' } | ForEach-Object {
         Copy-Item $_.FullName (Join-Path $bin $_.Name) -Force
         $flattened++
     }
