@@ -1,6 +1,6 @@
 # mcp-dotNET
 
-![mcp-dotnet logo](logo-mcp-dotnet.svg)
+![mcp-dotnet logo](logo-mcp-dotnet.png)
 🇬🇧 English · [🇮🇹 Italiano](README.it.md)
 
 **Your .NET assemblies, readable and patchable by your AI assistant.**
