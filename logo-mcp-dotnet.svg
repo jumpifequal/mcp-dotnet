@@ -1,0 +1,54 @@
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="gearGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2ec4b6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#146b63;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background circle -->
+  <circle cx="100" cy="100" r="95" fill="#f0f9f8" stroke="#2ec4b6" stroke-width="2"/>
+  
+  <!-- Main gear -->
+  <g transform="translate(100, 100)">
+    <!-- Gear teeth -->
+    <g fill="url(#gearGrad)">
+      <rect x="-8" y="-70" width="16" height="25" rx="3"/>
+      <rect x="-8" y="45" width="16" height="25" rx="3"/>
+      <rect x="-70" y="-8" width="25" height="16" rx="3"/>
+      <rect x="45" y="-8" width="25" height="16" rx="3"/>
+      <!-- Diagonal teeth -->
+      <g transform="rotate(45)">
+        <rect x="-6" y="-65" width="12" height="22" rx="2"/>
+        <rect x="-6" y="43" width="12" height="22" rx="2"/>
+      </g>
+      <g transform="rotate(-45)">
+        <rect x="-6" y="-65" width="12" height="22" rx="2"/>
+        <rect x="-6" y="43" width="12" height="22" rx="2"/>
+      </g>
+    </g>
+    
+    <!-- Gear center -->
+    <circle cx="0" cy="0" r="32" fill="#2ec4b6"/>
+    <circle cx="0" cy="0" r="24" fill="#8ee8de"/>
+    
+    <!-- Gremlin head -->
+    <ellipse cx="0" cy="-18" rx="16" ry="20" fill="#8ee8de" stroke="#146b63" stroke-width="1.5"/>
+    
+    <!-- Eyes -->
+    <circle cx="-7" cy="-22" r="4" fill="#ffffff" stroke="#146b63" stroke-width="1"/>
+    <circle cx="7" cy="-22" r="4" fill="#ffffff" stroke="#146b63" stroke-width="1"/>
+    <circle cx="-6" cy="-22" r="2.5" fill="#2b1a6b"/>
+    <circle cx="8" cy="-22" r="2.5" fill="#2b1a6b"/>
+    
+    <!-- Mischievous grin -->
+    <path d="M -8 -12 Q 0 -6 8 -12" fill="none" stroke="#146b63" stroke-width="2" stroke-linecap="round"/>
+    
+    <!-- Pointy ears -->
+    <polygon points="0,-38 -6,-30 6,-30" fill="#8ee8de" stroke="#146b63" stroke-width="1.5"/>
+  </g>
+  
+  <!-- Text -->
+  <text x="100" y="185" font-family="Arial, sans-serif" font-size="14" font-weight="bold" 
+        text-anchor="middle" fill="#146b63">mcp-dotnet</text>
+</svg>
